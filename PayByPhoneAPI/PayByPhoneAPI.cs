@@ -56,6 +56,14 @@ namespace PayByPhoneAPI
             return false;
         }
 
+        public bool Logout()
+        {
+            NameValueCollection values = new NameValueCollection();
+            values.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$LogOutButton");
+            var doc = CallAPI("OtherOptions.aspx", true, values);
+            return true;           
+        }
+
         private HtmlDocument CallAPI(string url, bool post = true, NameValueCollection content = null)
         {
             CookieWebClient webClient = new CookieWebClient();
@@ -72,7 +80,7 @@ namespace PayByPhoneAPI
                 {
                     content = new NameValueCollection();
                 }
-
+                
                 content.Add("__EVENTTARGET", "");
                 content.Add("__EVENTARGUMENT", "");
                 content.Add("__VIEWSTATE", myViewState);
@@ -115,7 +123,10 @@ namespace PayByPhoneAPI
                 countChanges++;
             }
 
-            Console.WriteLine("State Changes: {0}", countChanges);
+            if (countChanges != 2)
+            {
+                Console.WriteLine("State Changes not 2");
+            }            
         }
     }
 }

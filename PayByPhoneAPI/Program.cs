@@ -13,18 +13,33 @@ using System.Threading.Tasks;
 namespace PayByPhoneAPI
 {
     class Program
-    {       
+    {
+        PayByPhoneAPI api;
+
         static void Main(string[] args)
         {
             Program p = new Program();
             p.Login();
-            Console.ReadLine();
+            string message = "";
+            while (!message.Equals("Exit"))
+            {
+                message = Console.ReadLine();
+                switch (message)
+                {
+                    case "Logout":
+                        p.Logout();
+                        break;
+                    case "Login":
+                        p.Login();
+                        break;
+                }
+            }
         }
 
         private void Login()
         {
             bool val;
-            PayByPhoneAPI api = new PayByPhoneAPI();
+            api = new PayByPhoneAPI();
             do
             {
                 Console.WriteLine("Login to PayByPhone");
@@ -42,8 +57,11 @@ namespace PayByPhoneAPI
             }
             while (!val);
             Console.WriteLine("Logged in");
+        }
 
-                        
+        private void Logout()
+        {
+            api.Logout();
         }
     }
 }
