@@ -50,6 +50,7 @@
     <Compile Include="CookieWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="PayByPhoneAPI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
