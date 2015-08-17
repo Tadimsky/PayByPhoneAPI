@@ -14,8 +14,10 @@ namespace PayByPhoneAPI
     {
         private string myViewState;
         private string myEventValidation;
+        private string myViewStateGenerator;
 
         private WebClient myWebClient;
+        
 
         public PayByPhoneAPI()
         {
@@ -37,6 +39,7 @@ namespace PayByPhoneAPI
             info.Add("ctl00$ContentPlaceHolder1$AccountTextBox", Username);
             info.Add("ctl00$ContentPlaceHolder1$PinOrLast4DigitCcTextBox", Password);
             info.Add("ctl00$ContentPlaceHolder1$LoginButton", "sign+in");
+            info.Add("ctl00$ContentPlaceHolder1$RememberPinCheckBox", "on");
 
             var doc = CallAPI("Default.aspx", true, info);
 
@@ -77,6 +80,55 @@ namespace PayByPhoneAPI
             return true;           
         }
 
+        public List<Items.Vehicle> GetVehicles()
+        {
+            List<Items.Vehicle> myVehicles = new List<Items.Vehicle>();
+
+            CallAPI("OtherOptions.aspx", false);
+
+            NameValueCollection info = new NameValueCollection();
+            info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
+            var doc = CallAPI("OtherOptions.aspx", true, info);
+
+            var editVehiclesTable = doc.GetElementbyId("ctl00_ContentPlaceHolder1_EditVehiclesGridView");
+            if (editVehiclesTable != null)
+            {
+                var vehicleRows = editVehiclesTable.SelectNodes("tr");
+                foreach (var vehicle in vehicleRows)
+                {
+                    var vehicleInput = vehicle.SelectSingleNode(".//input[@type='text']/@value");
+                    if (vehicleInput == null)
+                    {
+                        // not a vehicle row
+                        continue;
+                    }
+                    var licenseAttrib = vehicleInput.Attributes["value"];
+                    string licensePlate = licenseAttrib.Value;
+
+                    string vehicleTypeVal = "";
+
+                    var vehicleType = vehicle.SelectSingleNode(".//select/option[@selected='selected']/@value");
+                    if (vehicleType != null)
+                    {
+                        var selectedAttrib = vehicleType.Attributes["value"];
+                        vehicleTypeVal = selectedAttrib.Value;
+                    }
+
+                    if (!String.IsNullOrEmpty(vehicleTypeVal) && !String.IsNullOrEmpty(licensePlate))
+                    {
+                        Items.VehicleType vType = (Items.VehicleType)int.Parse(vehicleTypeVal);
+                        Items.Vehicle newVehicle = new Items.Vehicle {
+                            LicensePlate = licensePlate,
+                            Type = vType
+                        };
+                        myVehicles.Add(newVehicle);
+                    }
+                }
+            }
+
+            return myVehicles;
+        }
+
         private HtmlDocument CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   
             string response;
@@ -87,11 +139,13 @@ namespace PayByPhoneAPI
                 {
                     content = new NameValueCollection();
                 }
+                if (content.Get("__EVENTTARGET") == null)
+                {
+                    content.Add("__EVENTARGUMENT", "");
+                }
                 
-                content.Add("__EVENTTARGET", "");
-                content.Add("__EVENTARGUMENT", "");
                 content.Add("__VIEWSTATE", myViewState);
-                content.Add("__VIEWSTATEGENERATOR", "");
+                content.Add("__VIEWSTATEGENERATOR", myViewStateGenerator);
                 content.Add("__EVENTVALIDATION", myEventValidation);
 
                 var result = myWebClient.UploadValues(url, "POST", content);
@@ -129,7 +183,16 @@ namespace PayByPhoneAPI
                 countChanges++;
             }
 
-            if (countChanges != 2)
+            var viewStateGenerator = html.GetElementbyId("__VIEWSTATEGENERATOR");
+            if (viewStateGenerator != null)
+            {
+                var value = viewStateGenerator.GetAttributeValue("value", "");
+                myViewStateGenerator = value;
+                countChanges++;
+            }
+            
+
+            if (countChanges != 3)
             {
                 Console.WriteLine("State Changes not 2");
             }            

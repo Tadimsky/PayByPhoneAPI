@@ -32,14 +32,19 @@ namespace PayByPhoneAPI
                     case "Login":
                         p.Login();
                         break;
+                    case "Vehicles":
+                        p.GetVehicles();
+                        break;
                 }
             }
         }
 
         private void Login()
-        {
+        {   
             bool val;
             api = new PayByPhoneAPI();
+            api.Login("7202564696", "2343");
+            return;
             do
             {
                 Console.WriteLine("Login to PayByPhone");
@@ -57,6 +62,14 @@ namespace PayByPhoneAPI
             }
             while (!val);
             Console.WriteLine("Logged in");
+        }
+
+        private void GetVehicles()
+        {
+            foreach (var v in api.GetVehicles())
+            {
+                Console.WriteLine("\t{0}\t{1}", v.LicensePlate, v.Type.ToString());
+            }
         }
 
         private void Logout()
