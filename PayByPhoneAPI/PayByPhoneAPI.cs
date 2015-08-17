@@ -15,6 +15,17 @@ namespace PayByPhoneAPI
         private string myViewState;
         private string myEventValidation;
 
+        private WebClient myWebClient;
+
+        public PayByPhoneAPI()
+        {
+            myWebClient = new CookieWebClient();
+            myWebClient.BaseAddress = "https://m.paybyphone.com";
+            myWebClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+            myWebClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+            myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
+        }
+
 
         public bool Login(string Username, string Password)
         {
@@ -61,17 +72,13 @@ namespace PayByPhoneAPI
             NameValueCollection values = new NameValueCollection();
             values.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$LogOutButton");
             var doc = CallAPI("OtherOptions.aspx", true, values);
+
+            // can you fail a logout?
             return true;           
         }
 
         private HtmlDocument CallAPI(string url, bool post = true, NameValueCollection content = null)
-        {
-            CookieWebClient webClient = new CookieWebClient();
-            webClient.BaseAddress = "https://m.paybyphone.com";
-            webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-            webClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
-            webClient.Headers["Origin"] = "https://m.paybyphone.com";
-
+        {   
             string response;
 
             if (post)
@@ -87,13 +94,12 @@ namespace PayByPhoneAPI
                 content.Add("__VIEWSTATEGENERATOR", "");
                 content.Add("__EVENTVALIDATION", myEventValidation);
 
-                var result = webClient.UploadValues(url, "POST", content);
+                var result = myWebClient.UploadValues(url, "POST", content);
                 response = Encoding.UTF8.GetString(result);
             }
             else
             {
-                response = webClient.DownloadString(url);
-
+                response = myWebClient.DownloadString(url);
             }
 
             HtmlDocument doc = new HtmlDocument();
