@@ -96,33 +96,12 @@ namespace PayByPhoneAPI
                 var vehicleRows = editVehiclesTable.SelectNodes("tr");
                 foreach (var vehicle in vehicleRows)
                 {
-                    var vehicleInput = vehicle.SelectSingleNode(".//input[@type='text']/@value");
-                    if (vehicleInput == null)
+                    Items.Vehicle newVehicle = Items.Vehicle.Parse(vehicle);
+                    if (newVehicle != null)
                     {
-                        // not a vehicle row
-                        continue;
-                    }
-                    var licenseAttrib = vehicleInput.Attributes["value"];
-                    string licensePlate = licenseAttrib.Value;
-
-                    string vehicleTypeVal = "";
-
-                    var vehicleType = vehicle.SelectSingleNode(".//select/option[@selected='selected']/@value");
-                    if (vehicleType != null)
-                    {
-                        var selectedAttrib = vehicleType.Attributes["value"];
-                        vehicleTypeVal = selectedAttrib.Value;
-                    }
-
-                    if (!String.IsNullOrEmpty(vehicleTypeVal) && !String.IsNullOrEmpty(licensePlate))
-                    {
-                        Items.VehicleType vType = (Items.VehicleType)int.Parse(vehicleTypeVal);
-                        Items.Vehicle newVehicle = new Items.Vehicle {
-                            LicensePlate = licensePlate,
-                            Type = vType
-                        };
                         myVehicles.Add(newVehicle);
                     }
+                   
                 }
             }
 
