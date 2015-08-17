@@ -39,11 +39,11 @@ namespace PayByPhoneAPI
             }
         }
 
-        private void Login()
+        private async void Login()
         {   
             bool val;
             api = new PayByPhoneAPI();
-            api.Login("7202564696", "2343");
+            await api.Login("7202564696", "2343");
             return;
             do
             {
@@ -54,7 +54,7 @@ namespace PayByPhoneAPI
                 Console.Write("\tPassword: ");
                 var password = Console.ReadLine();
 
-                val = api.Login(username, password);
+                val = await api.Login(username, password);
                 if (!val)
                 {
                     Console.WriteLine("Error Logging In");
@@ -64,9 +64,9 @@ namespace PayByPhoneAPI
             Console.WriteLine("Logged in");
         }
 
-        private void GetVehicles()
+        private async void GetVehicles()
         {
-            foreach (var v in api.GetVehicles())
+            foreach (var v in await api.GetVehicles())
             {
                 Console.WriteLine("\t{0}\t{1}", v.LicensePlate, v.Type.ToString());
             }

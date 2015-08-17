@@ -29,10 +29,10 @@ namespace PayByPhoneAPI
         }
 
 
-        public bool Login(string Username, string Password)
+        public async Task<bool> Login(string Username, string Password)
         {
             // fetch the view state and whatnot first
-            CallAPI("Default.aspx", false);
+            await CallAPI("Default.aspx", false);
 
             NameValueCollection info = new NameValueCollection();
             info.Add("ctl00$ContentPlaceHolder1$CallingCodeDropDownList", "-1");
@@ -41,7 +41,7 @@ namespace PayByPhoneAPI
             info.Add("ctl00$ContentPlaceHolder1$LoginButton", "sign+in");
             info.Add("ctl00$ContentPlaceHolder1$RememberPinCheckBox", "on");
 
-            var doc = CallAPI("Default.aspx", true, info);
+            var doc = await CallAPI("Default.aspx", true, info);
 
             var form = doc.GetElementbyId("aspnetForm");            
             if (form != null)
@@ -80,15 +80,15 @@ namespace PayByPhoneAPI
             return true;           
         }
 
-        public List<Items.Vehicle> GetVehicles()
+        public async Task<List<Items.Vehicle>> GetVehicles()
         {
             List<Items.Vehicle> myVehicles = new List<Items.Vehicle>();
 
-            CallAPI("OtherOptions.aspx", false);
+            await CallAPI("OtherOptions.aspx", false);
 
             NameValueCollection info = new NameValueCollection();
             info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
-            var doc = CallAPI("OtherOptions.aspx", true, info);
+            var doc = await CallAPI("OtherOptions.aspx", true, info);
 
             var editVehiclesTable = doc.GetElementbyId("ctl00_ContentPlaceHolder1_EditVehiclesGridView");
             if (editVehiclesTable != null)
@@ -108,7 +108,7 @@ namespace PayByPhoneAPI
             return myVehicles;
         }
 
-        private HtmlDocument CallAPI(string url, bool post = true, NameValueCollection content = null)
+        public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   
             string response;
 
@@ -126,13 +126,13 @@ namespace PayByPhoneAPI
                 content.Add("__VIEWSTATE", myViewState);
                 content.Add("__VIEWSTATEGENERATOR", myViewStateGenerator);
                 content.Add("__EVENTVALIDATION", myEventValidation);
-
-                var result = myWebClient.UploadValues(url, "POST", content);
+                
+                var result = await myWebClient.UploadValuesTaskAsync(url, "POST", content);
                 response = Encoding.UTF8.GetString(result);
             }
             else
             {
-                response = myWebClient.DownloadString(url);
+                response = await myWebClient.DownloadStringTaskAsync(url);
             }
 
             HtmlDocument doc = new HtmlDocument();
