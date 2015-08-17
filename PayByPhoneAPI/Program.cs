@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -29,105 +30,78 @@ namespace PayByPhoneAPI
         {            
             myCookies = new CookieContainer();
             // load the initial cookies
-            var doc = CallAPI("https://m.paybyphone.com/Default.aspx", false);
+            var doc = CallAPI("Default.aspx", false);
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append(String.Format("ctl00$ContentPlaceHolder1$CallingCodeDropDownList={0}", "-1"));
-            sb.Append(String.Format("&ctl00$ContentPlaceHolder1$AccountTextBox={0}", "7202564696"));
-            sb.Append(String.Format("&ctl00$ContentPlaceHolder1$PinOrLast4DigitCcTextBox={0}", "2343"));
-            sb.Append(String.Format("&ctl00$ContentPlaceHolder1$LoginButton={0}", "sign+in"));
-            CallAPI("https://m.paybyphone.com/Default.aspx", true, sb);                 
+            NameValueCollection info = new NameValueCollection();
+            info.Add("ctl00$ContentPlaceHolder1$CallingCodeDropDownList", "-1");
+            info.Add("ctl00$ContentPlaceHolder1$AccountTextBox", "7202564696");
+            info.Add("ctl00$ContentPlaceHolder1$PinOrLast4DigitCcTextBox", "2343");
+            info.Add("ctl00$ContentPlaceHolder1$LoginButton", "sign+in");
+            CallAPI("Default.aspx", true, info);                 
         }
 
-        private HtmlDocument CallAPI(string url, bool post = true, StringBuilder content = null)
+        private HtmlDocument CallAPI(string url, bool post = true, NameValueCollection content = null)
         {
-            HttpWebRequest initial = WebRequest.CreateHttp(url);
-            initial.CookieContainer = myCookies;
-            initial.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
-            initial.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
-            initial.Headers["Origin"] = "https://m.paybyphone.com";
-            initial.Connection = "keep-alive";
+            CookieWebClient webClient = new CookieWebClient();
+            webClient.BaseAddress = "https://m.paybyphone.com";
+            webClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+            webClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+            webClient.Headers["Origin"] = "https://m.paybyphone.com";
 
-            HttpClient hc;
-            /*
-Cache-Control: max-age=0
-Upgrade-Insecure-Requests: 1
-DNT: 1
-Referer: https://m.paybyphone.com/Default.aspx
-Accept-Encoding: gzip, deflate
-Accept-Language: en-US,en;q=0.8
-*/
+            string response;
 
-            initial.KeepAlive = true;          
             if (post)
             {
-                initial.Method = "POST";
-                initial.ContentType = "application/x-www-form-urlencoded";
-
                 if (content == null)
                 {
-                    content = new StringBuilder();                    
-                    content.Append(String.Format("__VIEWSTATE={0}", myViewState));
+                    content = new NameValueCollection();                   
                 }
-                else
-                {
-                    content.Append(String.Format("&__VIEWSTATE={0}", myViewState));
-                }
-                content.Append(String.Format("&__EVENTVALIDATION={0}", myEventValidation));
-                content.Append("&__EVENTTARGET=");
-                content.Append("&__EVENTARGUMENT=");
 
-                string f = content.ToString();
+                content.Add("__EVENTTARGET", "");
+                content.Add("__EVENTARGUMENT", "");
+                content.Add("__VIEWSTATE", myViewState);
+                content.Add("__VIEWSTATEGENERATOR", "");
+                content.Add("__EVENTVALIDATION", myEventValidation);
 
-                using (StreamWriter sr = new StreamWriter(initial.GetRequestStream()))
-                {
-                    sr.Write(content.ToString());
-                }
+                var result = webClient.UploadValues(url, "POST", content);
+                response = Encoding.UTF8.GetString(result);
             }  
             else
             {
-                initial.Method = "GET";
+                response = webClient.DownloadString(url);
+
             }
 
-            var page = initial.GetResponse();
-            Console.WriteLine(page.Headers);  
-                             
-
-            var doc = this.loadPage(page);            
-            return doc;
-        }
-
-        private HtmlDocument loadPage(WebResponse req)
-        {
-            string content;
-            using (StreamReader sr = new StreamReader(req.GetResponseStream()))
-            {
-                content = sr.ReadToEnd();
-            }
-            Console.WriteLine(content);
             HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(content);
+            doc.LoadHtml(response);
             processState(doc);
+
+            //Console.WriteLine(doc.GetElementbyId("wrapper").InnerHtml);
+               
             return doc;
         }
 
+     
         private void processState(HtmlDocument html)
         {
             var viewState = html.GetElementbyId("__VIEWSTATE");
+            int countChanges = 0;
+
             if (viewState != null)
             {
                 var value = viewState.GetAttributeValue("value", "");
-                value = value.Replace(" ", "");
                 myViewState = value;
+                countChanges++;
             }
-            Console.WriteLine();
             var eventValidation = html.GetElementbyId("__EVENTVALIDATION");
             if (eventValidation != null)
             {
                 var value = eventValidation.GetAttributeValue("value", "");
-                value = value.Replace(" ", "");
                 myEventValidation = value;
+                countChanges++;
             }
+
+            Console.WriteLine("State Changes: {0}", countChanges);
         }
     }
 }
