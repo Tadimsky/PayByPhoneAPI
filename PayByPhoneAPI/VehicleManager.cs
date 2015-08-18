@@ -14,10 +14,18 @@ namespace PayByPhoneAPI
 
         public List<Vehicle> Vehicles { get; set; }
 
+        private bool updatedList;
+        
         public VehicleManager(PayByPhoneAPI api)
         {
             myAPI = api;
             Vehicles = new List<Items.Vehicle>();
+            updatedList = false;
+        }
+
+        private bool ShouldUpdate()
+        {
+            return !updatedList;
         }
 
         public async Task<bool> LoadVehicles()
@@ -50,12 +58,43 @@ namespace PayByPhoneAPI
             }
 
             Vehicles.AddRange(loadedVehicles);
+            Vehicles.Sort((a, b) => a.LicensePlate.CompareTo(b.LicensePlate));
+            //updatedList = true;
 
             return true;
         }
 
-        public bool CreateVehicle(Vehicle vehicle)
+        public async Task<bool> CreateVehicle(Vehicle vehicle)
         {
+            if (vehicle == null)
+            {
+                return false;
+            }
+
+            if (ShouldUpdate())
+            {
+                // update vehicles first
+                await this.LoadVehicles();
+            }
+
+            // check that vehicle does not exist
+
+            var sortedVehicles = new List<Vehicle>(Vehicles);
+            sortedVehicles.Sort((a, b) => a.WebData.LicensePlateHiddenField.CompareTo(b.WebData.LicensePlateHiddenField));
+
+            if (sortedVehicles.Find(v => v.LicensePlate.Equals(vehicle.LicensePlate)) == null)
+            {
+                // does not exist
+                // find the last one that exists
+                var lastVehicle = sortedVehicles.Last();
+
+                VehicleWebData vwd = VehicleWebData.NextIncrement(lastVehicle.WebData);
+            }
+            else
+            {
+                return false;
+            }
+
             return true;
         }
 

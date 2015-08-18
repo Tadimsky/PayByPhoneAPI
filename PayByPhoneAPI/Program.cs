@@ -35,6 +35,9 @@ namespace PayByPhoneAPI
                     case "Vehicles":
                         p.GetVehicles();
                         break;
+                    case "Add Vehicle":
+                        p.AddVehicle();
+                        break;
                 }
             }
         }
@@ -75,6 +78,13 @@ namespace PayByPhoneAPI
         private void Logout()
         {
             api.Logout();
+        }
+
+        private void AddVehicle()
+        {
+            Items.Vehicle v = new Items.Vehicle();
+            v.LicensePlate = "Hello";
+            api.CreateVehicle(v);
         }
     }
 }
