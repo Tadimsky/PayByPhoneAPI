@@ -10,6 +10,8 @@ namespace PayByPhoneAPI
 {
     class VehicleManager
     {
+        private const int MaximumVehicles = 4;
+
         private PayByPhoneAPI myAPI;
 
         public List<Vehicle> Vehicles { get; set; }
@@ -58,7 +60,7 @@ namespace PayByPhoneAPI
             }
 
             Vehicles.AddRange(loadedVehicles);
-            Vehicles.Sort((a, b) => a.LicensePlate.CompareTo(b.LicensePlate));
+            Vehicles.Sort((a, b) => a.WebData.LicensePlateHiddenField.CompareTo(b.WebData.LicensePlateHiddenField));
             //updatedList = true;
 
             return true;
@@ -77,22 +79,43 @@ namespace PayByPhoneAPI
                 await this.LoadVehicles();
             }
 
+            if (Vehicles.Count >= MaximumVehicles)
+            {
+                // cannot create more cars, can we?
+                return false;
+            }
+
             // check that vehicle does not exist
 
-            var sortedVehicles = new List<Vehicle>(Vehicles);
-            sortedVehicles.Sort((a, b) => a.WebData.LicensePlateHiddenField.CompareTo(b.WebData.LicensePlateHiddenField));
-
-            if (sortedVehicles.Find(v => v.LicensePlate.Equals(vehicle.LicensePlate)) == null)
+            if (Vehicles.Find(v => v.LicensePlate.Equals(vehicle.LicensePlate)) == null)
             {
                 // does not exist
                 // find the last one that exists
-                var lastVehicle = sortedVehicles.Last();
-
+                var lastVehicle = Vehicles.Last();
                 VehicleWebData vwd = VehicleWebData.NextIncrement(lastVehicle.WebData);
+                // have new web data for new vehicle
+                vehicle.WebData = vwd;
+
+                // now we have all the vehicles we want
+                // post everything to server
+                return await UploadVehicles();
             }
             else
             {
                 return false;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> UploadVehicles()
+        {            
+            NameValueCollection allFields = new NameValueCollection();
+            allFields.Add("ctl00$ContentPlaceHolder1$UpdateButton", "update");
+
+            foreach (Vehicle v in Vehicles)
+            {
+                allFields.Add(v.WebFormData);
             }
 
             return true;
