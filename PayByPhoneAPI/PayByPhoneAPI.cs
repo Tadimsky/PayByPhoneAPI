@@ -17,6 +17,8 @@ namespace PayByPhoneAPI
         private string myViewStateGenerator;
 
         private WebClient myWebClient;
+
+        private VehicleManager myVehicleManager;
         
 
         public PayByPhoneAPI()
@@ -26,6 +28,8 @@ namespace PayByPhoneAPI
             myWebClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
             myWebClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
             myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
+
+            myVehicleManager = new VehicleManager(this);
         }
 
 
@@ -77,35 +81,20 @@ namespace PayByPhoneAPI
             var doc = CallAPI("OtherOptions.aspx", true, values);
 
             // can you fail a logout?
+            // TODO: clear cookies for fun
+
             return true;           
         }
 
         public async Task<List<Items.Vehicle>> GetVehicles()
         {
-            List<Items.Vehicle> myVehicles = new List<Items.Vehicle>();
+            await myVehicleManager.LoadVehicles();
+            return myVehicleManager.Vehicles;
+        }
 
-            await CallAPI("OtherOptions.aspx", false);
-
-            NameValueCollection info = new NameValueCollection();
-            info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
-            var doc = await CallAPI("OtherOptions.aspx", true, info);
-
-            var editVehiclesTable = doc.GetElementbyId("ctl00_ContentPlaceHolder1_EditVehiclesGridView");
-            if (editVehiclesTable != null)
-            {
-                var vehicleRows = editVehiclesTable.SelectNodes("tr");
-                foreach (var vehicle in vehicleRows)
-                {
-                    Items.Vehicle newVehicle = Items.Vehicle.Parse(vehicle);
-                    if (newVehicle != null)
-                    {
-                        myVehicles.Add(newVehicle);
-                    }
-                   
-                }
-            }
-
-            return myVehicles;
+        public async Task<bool> CreateVehicle(Items.Vehicle vehicle)
+        {
+            return await myVehicleManager.CreateVehicle(vehicle);
         }
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
@@ -173,7 +162,7 @@ namespace PayByPhoneAPI
 
             if (countChanges != 3)
             {
-                Console.WriteLine("State Changes not 2");
+                Console.WriteLine("State Changes not 3 - why?");
             }            
         }
     }
