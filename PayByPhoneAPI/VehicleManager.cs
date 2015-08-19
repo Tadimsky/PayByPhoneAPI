@@ -147,6 +147,8 @@ namespace PayByPhoneAPI
             // hopefully no changes in here
             doc = await myAPI.CallAPI("EditVehicles.aspx", true, allFields);
 
+            PayByPhoneAPI.VerifyMessage(doc, "Details updated.");
+
             return true;
         }
 

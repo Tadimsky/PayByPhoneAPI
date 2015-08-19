@@ -144,6 +144,18 @@ namespace PayByPhoneAPI
             return doc;
         }
 
+        public static bool VerifyMessage(HtmlDocument document, string text)
+        {            
+            foreach (var log in document.DocumentNode.SelectNodes("//userlog"))
+            {
+                if (log.InnerText.Equals(text))
+                {
+                    return true;
+                }
+            }
+            throw new Exception("Unexpected Result");
+            return false;
+        }
 
         private void processState(HtmlDocument html)
         {
