@@ -14,12 +14,15 @@ namespace PayByPhoneAPI
             private string myLicensePlate;
             private VehicleType myType;
             private string myVehicleID;
+            private string myHiddenLicensePlate;
+
             public VehicleWebData WebData { get; set; }
             private bool isFromWebsite;
 
             public Vehicle()
             {
                 myLicensePlate = "";
+                myHiddenLicensePlate = "";
                 myType = VehicleType.Car;
                 myVehicleID = "0";
                 WebData = new VehicleWebData();
@@ -48,13 +51,12 @@ namespace PayByPhoneAPI
                 string vehicleTypeVal = vehicleType?.Attributes["value"].Value;
 
                 var hiddenData = htmlData.SelectNodes(".//input[@type='hidden']");
-                var hiddenIDInputCol = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("VehicleUid") == true);
-                var hiddenIDInput = hiddenIDInputCol.First();
-                var hiddenID = hiddenIDInput?.Attributes["value"]?.Value;                
-
+                var hiddenID = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("VehicleUid") == true)?.First()?.GetAttributeValue("value", "");
+                var hiddenLicPlate = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("LicensePlateHiddenField") == true)?.First()?.GetAttributeValue("value", "");
 
                 myType = (VehicleType)int.Parse(vehicleTypeVal);
                 myLicensePlate = licensePlate;
+                myHiddenLicensePlate = hiddenLicPlate;
                 myVehicleID = hiddenID;
 
                 WebData = new VehicleWebData(htmlData);
@@ -108,8 +110,10 @@ namespace PayByPhoneAPI
                     NameValueCollection nvc = new NameValueCollection();
                     nvc.Add(WebData.LicensePlateTextBox, myLicensePlate);
                     nvc.Add(WebData.VehicleUIDHiddenField, myVehicleID);
-                    nvc.Add(WebData.LicensePlateHiddenField, isFromWebsite ? myLicensePlate : "");
-                    nvc.Add(WebData.VehicleTypeHiddenField, myType.ToString());
+                    // if this is a new vehicle / not loaded from website, do not know the hidden lic plate or hidden type
+                    nvc.Add(WebData.LicensePlateHiddenField, isFromWebsite ? myHiddenLicensePlate : "");
+                    nvc.Add(WebData.VehicleTypeHiddenField, isFromWebsite ? myType.ToString() : "1");
+
                     nvc.Add(WebData.VehicleTypeDropDown, myType.ToString());
                     return nvc;
                 }

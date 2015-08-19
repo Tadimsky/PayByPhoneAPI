@@ -96,6 +96,8 @@ namespace PayByPhoneAPI
                 // have new web data for new vehicle
                 vehicle.WebData = vwd;
 
+                Vehicles.Add(vehicle);
+
                 // now we have all the vehicles we want
                 // post everything to server
                 return await UploadVehicles();
@@ -115,6 +117,17 @@ namespace PayByPhoneAPI
 
             foreach (Vehicle v in Vehicles)
             {
+                allFields.Add(v.WebFormData);
+            }
+
+            var lastVehicle = Vehicles.Last();
+            
+            // fill up missing items with blank data
+            for (int blankVehicles = Vehicles.Count; blankVehicles < MaximumVehicles; blankVehicles++)
+            {
+                Vehicle v = new Vehicle();
+                v.WebData = VehicleWebData.NextIncrement(lastVehicle.WebData);
+                lastVehicle = v;
                 allFields.Add(v.WebFormData);
             }
 
