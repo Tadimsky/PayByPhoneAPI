@@ -92,10 +92,23 @@ namespace PayByPhoneAPI
             return myVehicleManager.Vehicles;
         }
 
+        
+
         public async Task<bool> CreateVehicle(Items.Vehicle vehicle)
         {
             return await myVehicleManager.CreateVehicle(vehicle);
         }
+
+        public async Task<bool> UpdateVehicle(Items.Vehicle vehicle)
+        {
+            return await myVehicleManager.UpdateVehicle(vehicle);
+        }
+
+        public async Task<bool> DeleteVehicle(Items.Vehicle vehicle)
+        {
+            return await myVehicleManager.DeleteVehicle(vehicle);
+        }
+
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   

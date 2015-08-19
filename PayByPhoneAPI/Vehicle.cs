@@ -107,14 +107,15 @@ namespace PayByPhoneAPI
             {
                 get
                 {
+                    string vehicleType = isFromWebsite ? String.Format("{0}", (int)myType) : "1";
                     NameValueCollection nvc = new NameValueCollection();
                     nvc.Add(WebData.LicensePlateTextBox, myLicensePlate);
                     nvc.Add(WebData.VehicleUIDHiddenField, myVehicleID);
                     // if this is a new vehicle / not loaded from website, do not know the hidden lic plate or hidden type
                     nvc.Add(WebData.LicensePlateHiddenField, isFromWebsite ? myHiddenLicensePlate : "");
-                    nvc.Add(WebData.VehicleTypeHiddenField, isFromWebsite ? myType.ToString() : "1");
+                    nvc.Add(WebData.VehicleTypeHiddenField, vehicleType);
 
-                    nvc.Add(WebData.VehicleTypeDropDown, myType.ToString());
+                    nvc.Add(WebData.VehicleTypeDropDown, vehicleType);
                     return nvc;
                 }
 

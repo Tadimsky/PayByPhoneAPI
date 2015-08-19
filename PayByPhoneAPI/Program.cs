@@ -38,6 +38,12 @@ namespace PayByPhoneAPI
                     case "Add Vehicle":
                         p.AddVehicle();
                         break;
+                    case "Edit Vehicle":
+                        p.EditVehicle();
+                        break;
+                    case "Delete Vehicle":
+                        p.DeleteVehicle();
+                        break;
                 }
             }
         }
@@ -80,11 +86,42 @@ namespace PayByPhoneAPI
             api.Logout();
         }
 
-        private void AddVehicle()
+        private async void AddVehicle()
         {
             Items.Vehicle v = new Items.Vehicle();
-            v.LicensePlate = "Hello";
-            api.CreateVehicle(v);
+            v.LicensePlate = Guid.NewGuid().ToString().Substring(0, 5);
+            Console.WriteLine("\tAdding New Vehicle: {0}", v.LicensePlate);
+            await api.CreateVehicle(v);            
         }
+
+        private async void EditVehicle()
+        {
+            var v = await api.GetVehicles();
+            var vehicle = v.First();
+
+            var old = vehicle.LicensePlate;
+
+            vehicle.LicensePlate = Guid.NewGuid().ToString().Substring(0, 5);
+
+            Console.WriteLine("\tEditing Vehicle: {0} -> {1}", old, vehicle.LicensePlate);
+            await api.UpdateVehicle(vehicle);
+        }
+
+        private async void DeleteVehicle()
+        {
+            var v = await api.GetVehicles();
+            var vehicle = v.First();
+            if (vehicle != null)
+            {
+                Console.WriteLine("\tDeleting Vehicle: {0}", vehicle.LicensePlate);
+
+                await api.DeleteVehicle(vehicle);
+            }
+            else
+            {
+                Console.WriteLine("\tNo More Vehicles");
+            }            
+        }
+
     }
 }

@@ -10,7 +10,7 @@ namespace PayByPhoneAPI
 {
     class VehicleManager
     {
-        private const int MaximumVehicles = 4;
+        private int myMaximumVehicles = 4;
 
         private PayByPhoneAPI myAPI;
 
@@ -45,6 +45,8 @@ namespace PayByPhoneAPI
             if (editVehiclesTable != null)
             {
                 var vehicleRows = editVehiclesTable.SelectNodes("tr");
+                // max cars we can deal with right now is vehicleRows - 1
+                this.myMaximumVehicles = vehicleRows.Count - 1;
                 foreach (var vehicle in vehicleRows)
                 {
                     Items.Vehicle newVehicle = Items.Vehicle.Parse(vehicle);
@@ -79,7 +81,7 @@ namespace PayByPhoneAPI
                 await this.LoadVehicles();
             }
 
-            if (Vehicles.Count >= MaximumVehicles)
+            if (Vehicles.Count >= myMaximumVehicles)
             {
                 // cannot create more cars, can we?
                 return false;
@@ -87,7 +89,7 @@ namespace PayByPhoneAPI
 
             // check that vehicle does not exist
 
-            if (Vehicles.Find(v => v.LicensePlate.Equals(vehicle.LicensePlate)) == null)
+            if (Vehicles.Find(v => v.LicensePlate.Equals(vehicle.LicensePlate, StringComparison.OrdinalIgnoreCase)) == null)
             {
                 // does not exist
                 // find the last one that exists
@@ -120,10 +122,11 @@ namespace PayByPhoneAPI
                 allFields.Add(v.WebFormData);
             }
 
+            // this is the last vehicle - could be the new one
             var lastVehicle = Vehicles.Last();
             
             // fill up missing items with blank data
-            for (int blankVehicles = Vehicles.Count; blankVehicles < MaximumVehicles; blankVehicles++)
+            for (int blankVehicles = Vehicles.Count; blankVehicles < myMaximumVehicles; blankVehicles++)
             {
                 Vehicle v = new Vehicle();
                 v.WebData = VehicleWebData.NextIncrement(lastVehicle.WebData);
@@ -131,17 +134,34 @@ namespace PayByPhoneAPI
                 allFields.Add(v.WebFormData);
             }
 
+            // now we post this to the server
+            // make sure we on the otheroptions page
+            await myAPI.CallAPI("OtherOptions.aspx", false);
+
+            // post to get to edit vehicles page
+            NameValueCollection info = new NameValueCollection();
+            info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
+            var doc = await myAPI.CallAPI("OtherOptions.aspx", true, info);
+
+            // upload our current info
+            // hopefully no changes in here
+            doc = await myAPI.CallAPI("EditVehicles.aspx", true, allFields);
+
             return true;
         }
 
-        public bool UpdateVehicle(Vehicle vehicle)
+        public async Task<bool> UpdateVehicle(Vehicle vehicle)
         {
-            return true;
+            // something changed
+            // we don't change the id or the hidden license plate
+            return await UploadVehicles();            
         }
 
-        public bool DeleteVehicle(Vehicle vehicle)
+        public async Task<bool> DeleteVehicle(Vehicle vehicle)
         {
-            return true;
+            // simply clear the license plate data
+            vehicle.LicensePlate = "";
+            return await this.UploadVehicles();         
         }
     }
 }
