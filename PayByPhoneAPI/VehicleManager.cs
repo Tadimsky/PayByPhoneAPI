@@ -8,19 +8,16 @@ using System.Collections.Specialized;
 
 namespace PayByPhoneAPI
 {
-    class VehicleManager
+    class VehicleManager : APISection
     {
         private int myMaximumVehicles = 4;
-
-        private PayByPhoneAPI myAPI;
-
+        
         public List<Vehicle> Vehicles { get; set; }
 
         private bool updatedList;
         
-        public VehicleManager(PayByPhoneAPI api)
-        {
-            myAPI = api;
+        public VehicleManager(PayByPhoneAPI api) : base(api)
+        {            
             Vehicles = new List<Items.Vehicle>();
             updatedList = false;
         }

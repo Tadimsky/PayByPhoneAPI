@@ -44,6 +44,9 @@ namespace PayByPhoneAPI
                     case "Delete Vehicle":
                         p.DeleteVehicle();
                         break;
+                    case "Edit Card":
+                        p.EditCard();
+                        break;
                 }
             }
         }
@@ -121,6 +124,17 @@ namespace PayByPhoneAPI
             {
                 Console.WriteLine("\tNo More Vehicles");
             }            
+        }
+
+        private async void EditCard()
+        {
+            Items.CreditCard cc = new Items.CreditCard();
+            cc.ExpiryMonth = "01";
+            cc.ExpiryYear = "2017";
+            cc.Name = "Ja Schmidt";
+            cc.Number = "52210083633010048";
+
+            await api.UploadCard(cc);
         }
 
     }

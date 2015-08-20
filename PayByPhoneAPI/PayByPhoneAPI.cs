@@ -19,6 +19,7 @@ namespace PayByPhoneAPI
         private WebClient myWebClient;
 
         private VehicleManager myVehicleManager;
+        private PaymentDetails myPaymentDetails;
         
 
         public PayByPhoneAPI()
@@ -30,6 +31,7 @@ namespace PayByPhoneAPI
             myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
 
             myVehicleManager = new VehicleManager(this);
+            myPaymentDetails = new PaymentDetails(this);
         }
 
 
@@ -109,6 +111,11 @@ namespace PayByPhoneAPI
             return await myVehicleManager.DeleteVehicle(vehicle);
         }
 
+        public async Task<bool> UploadCard(Items.CreditCard creditcard)
+        {
+            return await myPaymentDetails.SaveCard(creditcard);
+        }
+
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   
@@ -144,17 +151,19 @@ namespace PayByPhoneAPI
             return doc;
         }
 
-        public static bool VerifyMessage(HtmlDocument document, string text)
-        {            
+        public static bool VerifyMessage(HtmlDocument document, string text = "Details updated.")
+        {
+            var receivedMessage = "";
             foreach (var log in document.DocumentNode.SelectNodes("//userlog"))
             {
-                if (log.InnerText.Equals(text))
+                receivedMessage = log.InnerText;
+                if (receivedMessage.Equals(text))
                 {
                     return true;
                 }
+
             }
-            throw new Exception("Unexpected Result");
-            return false;
+            throw new UnexpectedResponseException(text, receivedMessage);
         }
 
         private void processState(HtmlDocument html)
@@ -189,6 +198,23 @@ namespace PayByPhoneAPI
             {
                 Console.WriteLine("State Changes not 3 - why?");
             }            
+        }
+    }
+
+    class UnexpectedResponseException : Exception
+    {
+        public string ExpectedMessage { get; private set; }
+        public string ReceivedMessage { get; private set; }
+
+        public UnexpectedResponseException(string expected, string actual)
+        {
+            ExpectedMessage = expected;
+            ReceivedMessage = actual;
+        }
+
+        public override string ToString()
+        {
+            return String.Format("Received Response: {0}\nExpected: {1}", ReceivedMessage, ExpectedMessage);
         }
     }
 }
