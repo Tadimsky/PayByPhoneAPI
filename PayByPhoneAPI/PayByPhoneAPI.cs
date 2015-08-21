@@ -20,6 +20,7 @@ namespace PayByPhoneAPI
 
         private VehicleManager myVehicleManager;
         private PaymentDetails myPaymentDetails;
+        private EmailSettings myEmailSettings;
         
 
         public PayByPhoneAPI()
@@ -32,6 +33,7 @@ namespace PayByPhoneAPI
 
             myVehicleManager = new VehicleManager(this);
             myPaymentDetails = new PaymentDetails(this);
+            myEmailSettings = new EmailSettings(this);
         }
 
 
@@ -92,9 +94,7 @@ namespace PayByPhoneAPI
         {
             await myVehicleManager.LoadVehicles();
             return myVehicleManager.Vehicles;
-        }
-
-        
+        }        
 
         public async Task<bool> CreateVehicle(Items.Vehicle vehicle)
         {
@@ -114,6 +114,11 @@ namespace PayByPhoneAPI
         public async Task<bool> UploadCard(Items.CreditCard creditcard)
         {
             return await myPaymentDetails.SaveCard(creditcard);
+        }
+
+        public async Task<Items.EmailSetting> GetEmailSetting()
+        {
+            return await myEmailSettings.GetEmailSetting();
         }
 
 
