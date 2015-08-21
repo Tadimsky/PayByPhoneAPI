@@ -121,6 +121,11 @@ namespace PayByPhoneAPI
             return await myEmailSettings.GetEmailSetting();
         }
 
+        public async Task<bool> UpdateEmailSetting(Items.EmailSetting email)
+        {
+            return await myEmailSettings.SaveEmail(email);
+        }
+
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   

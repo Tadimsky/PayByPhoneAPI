@@ -50,6 +50,9 @@ namespace PayByPhoneAPI
                     case "Get Email":
                         p.GetEmail();
                         break;
+                    case "Edit Email":
+                        p.EditEmail();
+                        break;
                 }
             }
         }
@@ -143,6 +146,16 @@ namespace PayByPhoneAPI
         private async void GetEmail()
         {
             Console.WriteLine((await api.GetEmailSetting()).ToString());
+        }
+
+        private async void EditEmail()
+        {
+            Items.EmailSetting email = new Items.EmailSetting();
+            email.EmailAddress = "jonno@pop.com";
+            email.EmailReceipts = true;
+            email.TextReminders = true;
+
+            await api.UpdateEmailSetting(email);
         }
 
 

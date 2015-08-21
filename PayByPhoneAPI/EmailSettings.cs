@@ -15,9 +15,26 @@ namespace PayByPhoneAPI
         }
         
 
-        public async Task<bool> SaveCard(CreditCard card)
+        public async Task<bool> SaveEmail(EmailSetting email)
         {
-            return await this.uploadCard(card);
+            await this.loadOptions(Sections.Button.EmailSettings);
+
+            // post the data to the info
+            NameValueCollection nvc = new NameValueCollection();
+            nvc.Add(email.WebFormData);
+            nvc.Add(FormInputNames.EmailSettings.UpdateButton, FormInputNames.EmailSettings.UpdateButtonValue);
+
+            var doc = await myAPI.CallAPI("TextEmailSettings.aspx", true, nvc);
+            try
+            {
+                PayByPhoneAPI.VerifyMessage(doc);
+            }
+            catch (UnexpectedResponseException ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
+            return true;
         }
 
         public async Task<EmailSetting> GetEmailSetting()
@@ -26,27 +43,6 @@ namespace PayByPhoneAPI
             
             // process this doc
             return new EmailSetting(doc.DocumentNode);
-        }
-
-        private async Task<bool> uploadCard(CreditCard card)
-        {
-            await this.loadOptions(Sections.Button.EmailSettings);
-
-            // post the data to the info
-            NameValueCollection nvc = new NameValueCollection();
-            nvc.Add(card.WebFormData);
-            nvc.Add(FormInputNames.PaymentDetails.UpdateButton, FormInputNames.PaymentDetails.UpdateButtonValue);
-
-            var doc = await myAPI.CallAPI("PaymentDetails.aspx", true, nvc);
-            try {
-                PayByPhoneAPI.VerifyMessage(doc);
-            } 
-            catch (UnexpectedResponseException ex)
-            {
-                Console.WriteLine(ex);
-                return false;
-            }
-            return true;
         }
     }
     namespace Items
