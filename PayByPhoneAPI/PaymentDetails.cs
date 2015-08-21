@@ -16,16 +16,7 @@ namespace PayByPhoneAPI
 
         private async Task<HtmlAgilityPack.HtmlDocument> loadCardPage()
         {
-            // load the options page
-            await myAPI.CallAPI("OtherOptions.aspx", false);
-
-            // send request to get to card page
-            NameValueCollection info = new NameValueCollection();
-            info.Add("__EVENTTARGET", FormInputNames.PaymentDetails.PaymentDetailsButton);
-            var doc = await myAPI.CallAPI("OtherOptions.aspx", true, info);
-
-            // return the card info
-            return doc;
+            return await loadOptions(Sections.Button.PaymentDetails);
         }
 
         public async Task<bool> SaveCard(CreditCard card)
@@ -96,7 +87,6 @@ namespace PayByPhoneAPI
     {
         static class PaymentDetails
         {
-            public const string PaymentDetailsButton = "ctl00$ContentPlaceHolder1$PaymentDetailsButton";
             public const string CreditCardNumber = "ctl00$ContentPlaceHolder1$CcNumberTextBox";
             public const string CreditCardExpiryMonth = "ctl00$ContentPlaceHolder1$CcExpiryMonthDropDownList";
             public const string CreditCardExpiryYear = "ctl00$ContentPlaceHolder1$CcExpiryYearDropDownList";

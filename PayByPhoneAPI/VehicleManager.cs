@@ -32,11 +32,7 @@ namespace PayByPhoneAPI
             List<Items.Vehicle> loadedVehicles = new List<Items.Vehicle>();
             Vehicles.Clear();
 
-            await myAPI.CallAPI("OtherOptions.aspx", false);
-
-            NameValueCollection info = new NameValueCollection();
-            info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
-            var doc = await myAPI.CallAPI("OtherOptions.aspx", true, info);
+            var doc = await this.loadOptions(Sections.Button.Vehicles);
 
             var editVehiclesTable = doc.GetElementbyId("ctl00_ContentPlaceHolder1_EditVehiclesGridView");
             if (editVehiclesTable != null)
