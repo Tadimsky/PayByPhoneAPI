@@ -52,6 +52,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="PayByPhoneAPI.cs" />
+    <Compile Include="EmailSettings.cs" />
     <Compile Include="PaymentDetails.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -47,6 +47,9 @@ namespace PayByPhoneAPI
                     case "Edit Card":
                         p.EditCard();
                         break;
+                    case "Get Email":
+                        p.GetEmail();
+                        break;
                 }
             }
         }
@@ -136,6 +139,13 @@ namespace PayByPhoneAPI
 
             await api.UploadCard(cc);
         }
+
+        private async void GetEmail()
+        {
+            Console.WriteLine((await api.GetEmailSetting()).ToString());
+        }
+
+
 
     }
 }
