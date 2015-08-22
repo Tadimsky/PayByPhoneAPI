@@ -151,7 +151,7 @@ namespace PayByPhoneAPI
         private async void EditEmail()
         {
             Items.EmailSetting email = new Items.EmailSetting();
-            email.EmailAddress = "jonno@pop.com";
+            email.EmailAddress = "jonno@schmidtfam.us";
             email.EmailReceipts = true;
             email.TextReminders = true;
 
