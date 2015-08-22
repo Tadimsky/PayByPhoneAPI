@@ -15,16 +15,16 @@ namespace PayByPhoneAPI
         }
         
 
-        public async Task<bool> SaveEmail(EmailSetting email)
+        public async Task<bool> SaveSettings(SecuritySetting security)
         {
-            await this.loadOptions(Sections.Button.EmailSettings);
+            await this.loadOptions(Sections.Button.SecuritySettings);
 
             // post the data to the info
             NameValueCollection nvc = new NameValueCollection();
-            nvc.Add(email.WebFormData);
-            nvc.Add(FormInputNames.EmailSettings.UpdateButton, FormInputNames.EmailSettings.UpdateButtonValue);
+            nvc.Add(security.WebFormData);
+            nvc.Add(FormInputNames.SecuritySettings.UpdateButton, FormInputNames.SecuritySettings.UpdateButtonValue);
 
-            var doc = await myAPI.CallAPI("TextEmailSettings.aspx", true, nvc);
+            var doc = await myAPI.CallAPI("SecuritySettings.aspx", true, nvc);
             try
             {
                 PayByPhoneAPI.VerifyMessage(doc);
@@ -37,12 +37,12 @@ namespace PayByPhoneAPI
             return true;
         }
 
-        public async Task<EmailSetting> GetEmailSetting()
+        public async Task<SecuritySetting> GetSecuritySetting()
         {
-            var doc = await this.loadOptions(Sections.Button.EmailSettings);
+            var doc = await this.loadOptions(Sections.Button.SecuritySettings);
             
             // process this doc
-            return new EmailSetting(doc.DocumentNode);
+            return new SecuritySetting(doc.DocumentNode);
         }
     }
     namespace Items
@@ -68,7 +68,7 @@ namespace PayByPhoneAPI
             {                
                 if (newPin.Equals(confirmPin))
                 {
-                    oldPin = Pin;
+                    oldPin = currentPin;
                     Pin = newPin;
                     return true;
                 }

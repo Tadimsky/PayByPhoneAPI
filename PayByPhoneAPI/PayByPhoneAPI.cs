@@ -21,6 +21,7 @@ namespace PayByPhoneAPI
         private VehicleManager myVehicleManager;
         private PaymentDetails myPaymentDetails;
         private EmailSettings myEmailSettings;
+        private SecuritySettings mySecuritySettings;
         
 
         public PayByPhoneAPI()
@@ -34,6 +35,7 @@ namespace PayByPhoneAPI
             myVehicleManager = new VehicleManager(this);
             myPaymentDetails = new PaymentDetails(this);
             myEmailSettings = new EmailSettings(this);
+            mySecuritySettings = new SecuritySettings(this);
         }
 
 
@@ -126,6 +128,15 @@ namespace PayByPhoneAPI
             return await myEmailSettings.SaveEmail(email);
         }
 
+        public async Task<Items.SecuritySetting> GetSecuritySetting()
+        {
+            return await mySecuritySettings.GetSecuritySetting();
+        }
+
+        public async Task<bool> UpdateSecuritySetting(Items.SecuritySetting security)
+        {
+            return await mySecuritySettings.SaveSettings(security);
+        }
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   

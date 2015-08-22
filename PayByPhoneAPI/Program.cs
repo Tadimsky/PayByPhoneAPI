@@ -53,6 +53,12 @@ namespace PayByPhoneAPI
                     case "Edit Email":
                         p.EditEmail();
                         break;
+                    case "Get Security":
+                        p.GetSecuritySettings();
+                        break;
+                    case "Edit Security":
+                        p.EditSecuritySettings();
+                        break;
                 }
             }
         }
@@ -156,6 +162,20 @@ namespace PayByPhoneAPI
             email.TextReminders = true;
 
             await api.UpdateEmailSetting(email);
+        }
+
+        private async void GetSecuritySettings()
+        {
+            Console.WriteLine((await api.GetSecuritySetting()).ToString());
+        }
+
+        private async void EditSecuritySettings()
+        {
+            Items.SecuritySetting security = new Items.SecuritySetting();
+            security.RememberPin = false;
+            security.SkipVoicePin = true;
+            security.ChangePin("2343", "2343", "2343");
+            await api.UpdateSecuritySetting(security);
         }
 
 
