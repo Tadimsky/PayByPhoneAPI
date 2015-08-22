@@ -23,6 +23,7 @@ namespace PayByPhoneAPI
         private EmailSettings myEmailSettings;
         private SecuritySettings mySecuritySettings;
         private TermsConditions myTermsConditions;
+        private LocationManager myLocationManager;
         
 
         public PayByPhoneAPI()
@@ -38,6 +39,7 @@ namespace PayByPhoneAPI
             myEmailSettings = new EmailSettings(this);
             mySecuritySettings = new SecuritySettings(this);
             myTermsConditions = new TermsConditions(this);
+            myLocationManager = new LocationManager(this);
         }
 
 
@@ -143,6 +145,11 @@ namespace PayByPhoneAPI
         public async Task<Items.TermsConditions> GetTermsAndConditions()
         {
             return await myTermsConditions.GetTermsConditions();
+        }
+
+        public void Test()
+        {
+            myLocationManager.Test();
         }
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)

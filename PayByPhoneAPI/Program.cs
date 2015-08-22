@@ -62,6 +62,9 @@ namespace PayByPhoneAPI
                     case "Get TC":
                         p.GetTC();
                         break;
+                    case "Test":
+                        p.Test();
+                        break;
                 }
             }
         }
@@ -184,6 +187,11 @@ namespace PayByPhoneAPI
         private async void GetTC()
         {
             Console.WriteLine((await api.GetTermsAndConditions()).InfoHTML);
+        }
+
+        private void Test()
+        {
+            api.Test();
         }
     }
 }
