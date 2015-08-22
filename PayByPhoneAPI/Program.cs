@@ -59,6 +59,9 @@ namespace PayByPhoneAPI
                     case "Edit Security":
                         p.EditSecuritySettings();
                         break;
+                    case "Get TC":
+                        p.GetTC();
+                        break;
                 }
             }
         }
@@ -178,7 +181,9 @@ namespace PayByPhoneAPI
             await api.UpdateSecuritySetting(security);
         }
 
-
-
+        private async void GetTC()
+        {
+            Console.WriteLine((await api.GetTermsAndConditions()).InfoHTML);
+        }
     }
 }

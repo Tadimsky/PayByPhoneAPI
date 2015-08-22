@@ -38,7 +38,7 @@ namespace PayByPhoneAPI
             public const string Vehicles = "ctl00$ContentPlaceHolder1$EditVehiclesButton";
             public const string EmailSettings = "ctl00$ContentPlaceHolder1$TextEmailSettingsButton";
             public const string SecuritySettings = "ctl00$ContentPlaceHolder1$SecuritySettingsButton";
-            public const string TermsConditions = "yolo";
+            public const string TermsConditions = "ctl00$ContentPlaceHolder1$TermsAndConditionsButton";
         }
     }
 }

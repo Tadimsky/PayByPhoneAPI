@@ -22,6 +22,7 @@ namespace PayByPhoneAPI
         private PaymentDetails myPaymentDetails;
         private EmailSettings myEmailSettings;
         private SecuritySettings mySecuritySettings;
+        private TermsConditions myTermsConditions;
         
 
         public PayByPhoneAPI()
@@ -36,6 +37,7 @@ namespace PayByPhoneAPI
             myPaymentDetails = new PaymentDetails(this);
             myEmailSettings = new EmailSettings(this);
             mySecuritySettings = new SecuritySettings(this);
+            myTermsConditions = new TermsConditions(this);
         }
 
 
@@ -136,6 +138,11 @@ namespace PayByPhoneAPI
         public async Task<bool> UpdateSecuritySetting(Items.SecuritySetting security)
         {
             return await mySecuritySettings.SaveSettings(security);
+        }
+
+        public async Task<Items.TermsConditions> GetTermsAndConditions()
+        {
+            return await myTermsConditions.GetTermsConditions();
         }
 
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
