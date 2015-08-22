@@ -69,8 +69,13 @@ namespace PayByPhoneAPI
 
         public static List<RecentLocation> ParseLocations(HtmlNode node)
         {
-            var locations = node.SelectNodes("option").Select(option => new RecentLocation(option));
-            return new List<RecentLocation>( locations);
+            var list = new List<RecentLocation>();
+            if (node != null)
+            {
+                var locations = node.SelectNodes("option").Select(option => new RecentLocation(option));
+                list = new List<RecentLocation>(locations);
+            }
+            return list;
         }
     }
 
