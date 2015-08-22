@@ -44,11 +44,9 @@ namespace PayByPhoneAPI
             {
                 // parse the html node to get the info out
 
-                var vehicleInput = htmlData.SelectSingleNode(".//input[@type='text']/@value");
-                string licensePlate = vehicleInput?.Attributes["value"].Value;                
+                string licensePlate = htmlData.SelectSingleNode(".//input[@type='text']/@value")?.GetAttributeValue("value", "");
 
-                var vehicleType = htmlData.SelectSingleNode(".//select/option[@selected='selected']/@value");
-                string vehicleTypeVal = vehicleType?.Attributes["value"].Value;
+                string vehicleTypeVal = htmlData.SelectSingleNode(".//select/option[@selected='selected']/@value")?.GetAttributeValue("value", "");                
 
                 var hiddenData = htmlData.SelectNodes(".//input[@type='hidden']");
                 var hiddenID = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("VehicleUid") == true)?.First()?.GetAttributeValue("value", "");

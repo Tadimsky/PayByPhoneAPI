@@ -34,7 +34,7 @@ namespace PayByPhoneAPI
 
             var doc = await this.loadOptions(Sections.Button.Vehicles);
 
-            var editVehiclesTable = doc.GetElementbyId("ctl00_ContentPlaceHolder1_EditVehiclesGridView");
+            var editVehiclesTable = doc.GetElementbyId(FormInputNames.VehicleDetails.VehicleTable);
             if (editVehiclesTable != null)
             {
                 var vehicleRows = editVehiclesTable.SelectNodes("tr");
@@ -108,7 +108,7 @@ namespace PayByPhoneAPI
         private async Task<bool> UploadVehicles()
         {            
             NameValueCollection allFields = new NameValueCollection();
-            allFields.Add("ctl00$ContentPlaceHolder1$UpdateButton", "update");
+            allFields.Add(FormInputNames.VehicleDetails.UpdateButton, FormInputNames.VehicleDetails.UpdateButtonValue);
 
             foreach (Vehicle v in Vehicles)
             {
@@ -127,20 +127,13 @@ namespace PayByPhoneAPI
                 allFields.Add(v.WebFormData);
             }
 
-            // now we post this to the server
-            // make sure we on the otheroptions page
-            await myAPI.CallAPI("OtherOptions.aspx", false);
-
-            // post to get to edit vehicles page
-            NameValueCollection info = new NameValueCollection();
-            info.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$EditVehiclesButton");
-            var doc = await myAPI.CallAPI("OtherOptions.aspx", true, info);
+            var doc = await this.loadOptions(Sections.Button.Vehicles);
 
             // upload our current info
             // hopefully no changes in here
             doc = await myAPI.CallAPI("EditVehicles.aspx", true, allFields);
 
-            PayByPhoneAPI.VerifyMessage(doc, "Details updated.");
+            PayByPhoneAPI.VerifyMessage(doc);
 
             return true;
         }
@@ -157,6 +150,16 @@ namespace PayByPhoneAPI
             // simply clear the license plate data
             vehicle.LicensePlate = "";
             return await this.UploadVehicles();         
+        }
+    }
+
+    namespace FormInputNames
+    {
+        static class VehicleDetails
+        {
+            public const string VehicleTable = "ctl00_ContentPlaceHolder1_EditVehiclesGridView";
+            public const string UpdateButton = "ctl00$ContentPlaceHolder1$UpdateButton";
+            public const string UpdateButtonValue = "update";
         }
     }
 }
