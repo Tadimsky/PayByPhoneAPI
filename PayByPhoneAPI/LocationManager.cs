@@ -22,17 +22,27 @@ namespace PayByPhoneAPI
         {
             var doc = await myAPI.CallAPI("ChooseLocation.aspx");
             // after loading the page, parse whatever we can from the page
-            await parseLocationPage(doc);
+            parseLocationPage(doc);
 
             return true;
         }
 
-        public void Test()
+        public LocationResult SelectLocation(SearchLocation location)
         {
-            loadLocationPage();
+            // use this location to search for a location on the site
+            // if a recent location, set that as the id
+            // else search for the number
+
+            // returns select location result
+            return null;
         }
 
-        private async Task<bool> parseLocationPage(HtmlDocument doc)
+        public void Test()
+        {
+            await loadLocationPage();
+        }
+
+        private bool parseLocationPage(HtmlDocument doc)
         {
             // parse recent locations
             RecentLocations = new List<RecentLocation>(
@@ -49,33 +59,6 @@ namespace PayByPhoneAPI
             // parse other things?
 
             return true;
-            
-        }
-    }
-
-    class RecentLocation
-    {
-        public string Name { get; set; }
-        public string LocationID { get; private set; }
-
-        public RecentLocation(HtmlNode node)
-        {
-            LocationID = node.GetAttributeValue("value", "");
-            if (node.NextSibling != null)
-            {
-                Name = node.NextSibling.InnerText;
-            }
-        }
-
-        public static List<RecentLocation> ParseLocations(HtmlNode node)
-        {
-            var list = new List<RecentLocation>();
-            if (node != null)
-            {
-                var locations = node.SelectNodes("option").Select(option => new RecentLocation(option));
-                list = new List<RecentLocation>(locations);
-            }
-            return list;
         }
     }
 
