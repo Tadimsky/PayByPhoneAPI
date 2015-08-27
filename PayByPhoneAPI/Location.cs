@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using HtmlAgilityPack;
 
 namespace PayByPhoneAPI
 {
-    internal class Location
+    class Location
     {
         public string Name { get; set; }
 
@@ -17,7 +18,7 @@ namespace PayByPhoneAPI
         }
     }
 
-    internal class SearchLocation : Location
+    class SearchLocation : Location
     {
         public string LocationID { get; set; }
 
@@ -29,6 +30,13 @@ namespace PayByPhoneAPI
         public SearchLocation(string location)
         {
             LocationID = location;
+        }
+
+        public virtual NameValueCollection GetWebFormData()
+        {
+            NameValueCollection nvc = new NameValueCollection();
+            nvc.Add(FormInputNames.LocationSearch.LocationSearchBox, LocationID);
+            return nvc;
         }
     }
 
@@ -62,7 +70,7 @@ namespace PayByPhoneAPI
         }
     }
 
-    internal class RecentLocation : SearchLocation
+    class RecentLocation : SearchLocation
     {
         public RecentLocation(HtmlNode node)
         {
@@ -71,6 +79,11 @@ namespace PayByPhoneAPI
             {
                 Name = node.NextSibling.InnerText;
             }
+        }
+
+        public override NameValueCollection GetWebFormData()
+        {
+            return null;
         }
 
         public static List<RecentLocation> ParseLocations(HtmlNode node)
@@ -113,6 +126,15 @@ namespace PayByPhoneAPI
         }
 
         public List<DifferentiateResultLocation> Locations { get; set; }
+    }
+
+    namespace FormInputNames
+    {
+        internal static class LocationSearch
+        {
+            public const string LocationSearchBox = "ctl00$ContentPlaceHolder1$LocationNumberTextBox";
+            public const string PreviousLocationSearch = "ctl00$ContentPlaceHolder1$PreviousLocationDropDownList";
+        }
     }
 
 }

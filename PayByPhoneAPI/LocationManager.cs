@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Security.Policy;
@@ -27,11 +28,18 @@ namespace PayByPhoneAPI
             return true;
         }
 
+        /**
+            use this location to search for a location on the site
+            if a recent location, set that as the id
+            else search for the number
+        */
         public LocationResult SelectLocation(SearchLocation location)
         {
-            // use this location to search for a location on the site
-            // if a recent location, set that as the id
-            // else search for the number
+            var data = new NameValueCollection();
+            // will get correct value based on if it's recent or manual
+            data.Add(location.GetWebFormData());
+            data.Add(Constants.ChooseLocation.NextButton, Constants.ChooseLocation.NextButtonValue);
+
 
             // returns select location result
             return null;
@@ -39,7 +47,7 @@ namespace PayByPhoneAPI
 
         public void Test()
         {
-            await loadLocationPage();
+            //await loadLocationPage();
         }
 
         private bool parseLocationPage(HtmlDocument doc)
@@ -152,6 +160,8 @@ namespace PayByPhoneAPI
         {
             public const string PreviousLocationsDropDown = "ctl00$ContentPlaceHolder1$PreviousLocationDropDownList";
             public const string ActiveParkingTable = "ctl00_ContentPlaceHolder1_ActiveParkingGridView";
+            public const string NextButton = "ctl00$ContentPlaceHolder1$NextButton";
+            public const string NextButtonValue = "next";
         }
 
     }
