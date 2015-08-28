@@ -17,7 +17,6 @@ namespace PayByPhoneAPI
         public List<RecentLocation> RecentLocations { get; private set; } 
         public LocationManager(PayByPhoneAPI api) : base(api)
         {
-            
         }
         private async Task<bool> loadLocationPage()
         {
@@ -28,21 +27,52 @@ namespace PayByPhoneAPI
             return true;
         }
 
+        public async Task<bool> LoadLocations()
+        {
+            return await loadLocationPage();
+        }
+
         /**
             use this location to search for a location on the site
             if a recent location, set that as the id
             else search for the number
         */
-        public LocationResult SelectLocation(SearchLocation location)
+
+        public async Task<LocationResult> SelectLocation(SearchLocation location)
         {
+            await loadLocationPage();
+
             var data = new NameValueCollection();
             // will get correct value based on if it's recent or manual
             data.Add(location.GetWebFormData());
             data.Add(Constants.ChooseLocation.NextButton, Constants.ChooseLocation.NextButtonValue);
 
+            var doc = await myAPI.CallAPI("ChooseLocation.aspx", true, data);
+            // process this result and return the correct info
+            var form = doc.DocumentNode.SelectSingleNode("//form");
+            var formAction = form?.GetAttributeValue("action", "");
 
-            // returns select location result
-            return null;
+            LocationResult result = null;
+
+            if (formAction != null)
+            {
+                if (formAction.Contains("ChooseLocation"))
+                {
+                    // this is a multiple response
+                    result = new MultipleLocationResult(myAPI);
+                    var mlResult = result as MultipleLocationResult;
+                    mlResult.Locations = DifferentiateResultLocation.ParseLocations(doc.DocumentNode);
+                }
+                else
+                {
+                    // this is on Parking
+                    result = new SingleLocationResult();
+                    var slResult = result as SingleLocationResult;
+                    slResult.Location = new ResultLocation(doc.DocumentNode);
+                }
+            }
+
+            return result;
         }
 
         public void Test()
@@ -162,6 +192,8 @@ namespace PayByPhoneAPI
             public const string ActiveParkingTable = "ctl00_ContentPlaceHolder1_ActiveParkingGridView";
             public const string NextButton = "ctl00$ContentPlaceHolder1$NextButton";
             public const string NextButtonValue = "next";
+            public const string OverlappedLocationsListId = "ctl00_ContentPlaceHolder1_OverlappedLocationList";
+            public const string OverlappedLocationTarget = "ctl00$ContentPlaceHolder1$OverlappedLocationList";
         }
 
     }

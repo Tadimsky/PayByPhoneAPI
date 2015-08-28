@@ -65,6 +65,12 @@ namespace PayByPhoneAPI
                     case "Test":
                         p.Test();
                         break;
+                    case "Recent Locations":
+                        p.GetRecentLocations();
+                        break;
+                    case "Select Recent Locations":
+                        p.SelectRecentLocation();
+                        break;
                 }
             }
         }
@@ -192,6 +198,20 @@ namespace PayByPhoneAPI
         private void Test()
         {
             api.Test();
+        }
+
+        private async void GetRecentLocations()
+        {
+            foreach (var recentLocation in await api.GetRecentLocations())
+            {
+                Console.WriteLine($"\t{recentLocation}");
+            }
+        }
+
+        private async void SelectRecentLocation()
+        {
+            var location = await api.GetRecentLocations();
+            var res = await api.SelectLocation(location.First());
         }
     }
 }

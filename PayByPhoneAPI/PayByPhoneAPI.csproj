@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="Location.cs" />
     <Compile Include="LocationManager.cs" />
+    <Compile Include="SearchLocation.cs" />
     <Compile Include="TermsConditions.cs" />
     <Compile Include="SecuritySettings.cs" />
     <Compile Include="PayByPhoneAPI.cs" />

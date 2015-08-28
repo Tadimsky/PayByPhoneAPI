@@ -152,6 +152,12 @@ namespace PayByPhoneAPI
             myLocationManager.Test();
         }
 
+        public async Task<List<RecentLocation>> GetRecentLocations()
+        {
+            await myLocationManager.LoadLocations();
+            return myLocationManager.RecentLocations;
+        }
+
         public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
         {   
             string response;
@@ -184,6 +190,11 @@ namespace PayByPhoneAPI
             processState(doc);
 
             return doc;
+        }
+
+        public async Task<LocationResult> SelectLocation(SearchLocation location)
+        {
+            return await myLocationManager.SelectLocation(location);
         }
 
         public static bool VerifyMessage(HtmlDocument document, string text = "Details updated.")
