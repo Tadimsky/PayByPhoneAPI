@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -56,6 +57,7 @@ namespace PayByPhoneAPI
             // parse the html result
             Name = html.InnerText;
             var href = html.SelectSingleNode(".//a").GetAttributeValue("href", "");
+            href = Uri.UnescapeDataString(href);
             var regex = new Regex(@"\((.+)\',\'(\d+)");
             var matches = regex.Match(href);
             Index = int.Parse(matches.Groups[2].Value);
@@ -71,7 +73,7 @@ namespace PayByPhoneAPI
         {
             var list = new List<DifferentiateResultLocation>();
             // iterate through the list and create new items
-            var ul = html.SelectSingleNode($"//ul[@id='{Constants.ChooseLocation.PreviousLocationsDropDown}']");
+            var ul = html.SelectSingleNode($"//ul[@id='{Constants.ChooseLocation.OverlappedLocationsListId}']");
             foreach (var node in ul.SelectNodes(".//li"))
             {
                 list.Add(new DifferentiateResultLocation(node));

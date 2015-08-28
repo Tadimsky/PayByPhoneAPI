@@ -68,8 +68,11 @@ namespace PayByPhoneAPI
                     case "Recent Locations":
                         p.GetRecentLocations();
                         break;
-                    case "Select Recent Locations":
+                    case "Select Recent Location":
                         p.SelectRecentLocation();
+                        break;
+                    case "Select Location":
+                        p.SelectLocation();
                         break;
                 }
             }
@@ -212,6 +215,14 @@ namespace PayByPhoneAPI
         {
             var location = await api.GetRecentLocations();
             var res = await api.SelectLocation(location.First());
+        }
+
+        private async void SelectLocation()
+        {
+            var location = new SearchLocation();
+            location.LocationID = "123";
+
+            var res = await api.SelectLocation(location);
         }
     }
 }
