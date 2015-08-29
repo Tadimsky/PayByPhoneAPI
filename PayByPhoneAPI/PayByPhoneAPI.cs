@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using System.Threading.Tasks;
+using PayByPhoneAPI.Constants;
 
 namespace PayByPhoneAPI
 {
@@ -31,7 +32,7 @@ namespace PayByPhoneAPI
             _myWebClient = new CookieWebClient();
             _myWebClient.BaseAddress = "https://m.paybyphone.com";
             _myWebClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-            _myWebClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+            _myWebClient.Headers[HttpRequestHeader.UserAgent] = Api.UserAgent;
             _myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
 
             _myVehicleManager = new VehicleManager(this);
@@ -170,12 +171,12 @@ namespace PayByPhoneAPI
                 }
                 if (content.Get(Constants.Api.EventTarget) == null)
                 {
-                    content.Add("__EVENTARGUMENT", "");
+                    content.Add(Api.EventArgument, "");
                 }
                 
-                content.Add("__VIEWSTATE", _myViewState);
-                content.Add("__VIEWSTATEGENERATOR", _myViewStateGenerator);
-                content.Add("__EVENTVALIDATION", _myEventValidation);
+                content.Add(Api.ViewState, _myViewState);
+                content.Add(Api.ViewStateGenerator, _myViewStateGenerator);
+                content.Add(Api.EventValidation, _myEventValidation);
                 
                 var result = await _myWebClient.UploadValuesTaskAsync(url, "POST", content);
                 response = Encoding.UTF8.GetString(result);
@@ -214,7 +215,7 @@ namespace PayByPhoneAPI
 
         private void ProcessState(HtmlDocument html)
         {
-            var viewState = html.GetElementbyId("__VIEWSTATE");
+            var viewState = html.GetElementbyId(Api.ViewState);
             int countChanges = 0;
 
             if (viewState != null)
@@ -223,7 +224,7 @@ namespace PayByPhoneAPI
                 _myViewState = value;
                 countChanges++;
             }
-            var eventValidation = html.GetElementbyId("__EVENTVALIDATION");
+            var eventValidation = html.GetElementbyId(Api.EventValidation);
             if (eventValidation != null)
             {
                 var value = eventValidation.GetAttributeValue("value", "");
@@ -231,7 +232,7 @@ namespace PayByPhoneAPI
                 countChanges++;
             }
 
-            var viewStateGenerator = html.GetElementbyId("__VIEWSTATEGENERATOR");
+            var viewStateGenerator = html.GetElementbyId(Api.ViewStateGenerator);
             if (viewStateGenerator != null)
             {
                 var value = viewStateGenerator.GetAttributeValue("value", "");
@@ -260,7 +261,7 @@ namespace PayByPhoneAPI
 
         public override string ToString()
         {
-            return String.Format("Received Response: {0}\nExpected: {1}", ReceivedMessage, ExpectedMessage);
+            return $"Received Response: {ReceivedMessage}\nExpected: {ExpectedMessage}";
         }
     }
 
@@ -269,6 +270,11 @@ namespace PayByPhoneAPI
         public static class Api
         {
             public const string EventTarget = "__EVENTTARGET";
+            public const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+            public const string ViewState = "__VIEWSTATE";
+            public const string EventValidation = "__EVENTVALIDATION";
+            public const string ViewStateGenerator = "__VIEWSTATEGENERATOR";
+            public const string EventArgument = "__EVENTARGUMENT";
         }
     }
 }
