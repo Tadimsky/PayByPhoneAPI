@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,7 +58,7 @@ namespace PayByPhoneAPI
             // parse the html result
             Name = html.InnerText;
             var href = html.SelectSingleNode(".//a").GetAttributeValue("href", "");
-            href = Uri.UnescapeDataString(href);
+            href = WebUtility.HtmlDecode(href);
             var regex = new Regex(@"\((.+)\',\'(\d+)");
             var matches = regex.Match(href);
             Index = int.Parse(matches.Groups[2].Value);
@@ -95,9 +96,9 @@ namespace PayByPhoneAPI
 
     internal class MultipleLocationResult : LocationResult
     {
-        private PayByPhoneAPI _api;
+        private PayByPhoneApi _api;
 
-        public MultipleLocationResult(PayByPhoneAPI api)
+        public MultipleLocationResult(PayByPhoneApi api)
         {
             _api = api;
         }
@@ -105,6 +106,7 @@ namespace PayByPhoneAPI
         public LocationResult RefineSelection(DifferentiateResultLocation location)
         {
             // update with the new location 
+            // Constants.ChooseLocation.OverlappedLocationTarget
 
             // return the result - should be a singlelocation
             // error? shitt

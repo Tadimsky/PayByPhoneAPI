@@ -10,26 +10,26 @@ using HtmlAgilityPack;
 
 namespace PayByPhoneAPI
 {
-    class LocationManager : APISection
+    class LocationManager : ApiSection
     {
 
         public List<ActiveParkingSession> ActiveParkingSessions { get; private set; } 
         public List<RecentLocation> RecentLocations { get; private set; } 
-        public LocationManager(PayByPhoneAPI api) : base(api)
+        public LocationManager(PayByPhoneApi api) : base(api)
         {
         }
-        private async Task<bool> loadLocationPage()
+        private async Task<bool> LoadLocationPage()
         {
-            var doc = await myAPI.CallAPI("ChooseLocation.aspx");
+            var doc = await MyApi.CallApi("ChooseLocation.aspx");
             // after loading the page, parse whatever we can from the page
-            parseLocationPage(doc);
+            ParseLocationPage(doc);
 
             return true;
         }
 
         public async Task<bool> LoadLocations()
         {
-            return await loadLocationPage();
+            return await LoadLocationPage();
         }
 
         /**
@@ -40,14 +40,14 @@ namespace PayByPhoneAPI
 
         public async Task<LocationResult> SelectLocation(SearchLocation location)
         {
-            await loadLocationPage();
+            await LoadLocationPage();
 
             var data = new NameValueCollection();
             // will get correct value based on if it's recent or manual
             data.Add(location.GetWebFormData());
             data.Add(Constants.ChooseLocation.NextButton, Constants.ChooseLocation.NextButtonValue);
 
-            var doc = await myAPI.CallAPI("ChooseLocation.aspx", true, data);
+            var doc = await MyApi.CallApi("ChooseLocation.aspx", true, data);
             // process this result and return the correct info
             var form = doc.DocumentNode.SelectSingleNode("//form");
             var formAction = form?.GetAttributeValue("action", "");
@@ -59,7 +59,7 @@ namespace PayByPhoneAPI
                 if (formAction.Contains("ChooseLocation"))
                 {
                     // this is a multiple response
-                    result = new MultipleLocationResult(myAPI);
+                    result = new MultipleLocationResult(MyApi);
                     var mlResult = result as MultipleLocationResult;
                     mlResult.Locations = DifferentiateResultLocation.ParseLocations(doc.DocumentNode);
                 }
@@ -80,7 +80,7 @@ namespace PayByPhoneAPI
             //await loadLocationPage();
         }
 
-        private bool parseLocationPage(HtmlDocument doc)
+        private bool ParseLocationPage(HtmlDocument doc)
         {
             // parse recent locations
             RecentLocations = new List<RecentLocation>(
@@ -102,7 +102,7 @@ namespace PayByPhoneAPI
 
     class ActiveParkingSession
     {
-        private WebFormData myWebData
+        private WebFormData MyWebData
         {
             get;
             set;
@@ -124,28 +124,28 @@ namespace PayByPhoneAPI
 
             // parse hidden fields
             
-            myWebData = new WebFormData();
+            MyWebData = new WebFormData();
             foreach (var input in hiddenFields)
             {
                 var name = input.GetAttributeValue("name", "");
                 var value = input.GetAttributeValue("value", "");
                 if (name.Contains("ExtendAllowedHiddenField"))
                 {
-                    myWebData.ExtendAllowed = name;
+                    MyWebData.ExtendAllowed = name;
                     ExtendAllowed = value;
                 }
                 else
                 {
                     if (name.Contains("LotUidHiddenField"))
                     {
-                        myWebData.LotUid = name;
+                        MyWebData.LotUid = name;
                         LotUid = value;
                     }
                     else
                     {
                         if (name.Contains("StallHiddenField"))
                         {
-                            myWebData.StallUid = name;
+                            MyWebData.StallUid = name;
                             StallUid = value;
                         }
                     }
@@ -194,6 +194,7 @@ namespace PayByPhoneAPI
             public const string NextButtonValue = "next";
             public const string OverlappedLocationsListId = "ctl00_ContentPlaceHolder1_OverlappedLocationList";
             public const string OverlappedLocationTarget = "ctl00$ContentPlaceHolder1$OverlappedLocationList";
+            
         }
 
     }

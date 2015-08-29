@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class TermsConditions : APISection
+    class TermsConditions : ApiSection
     {
-       public TermsConditions(PayByPhoneAPI api) : base(api)
+       public TermsConditions(PayByPhoneApi api) : base(api)
         {
         }        
 
         public async Task<Items.TermsConditions> GetTermsConditions()
         {
-            var doc = await this.loadOptions(Sections.Button.TermsConditions);
+            var doc = await this.LoadOptions(Sections.Button.TermsConditions);
             
             // process this doc
             return new Items.TermsConditions(doc.DocumentNode);
@@ -27,7 +27,7 @@ namespace PayByPhoneAPI
 
         class TermsConditions
         {
-            public string InfoHTML { get; private set; }
+            public string InfoHtml { get; private set; }
             public string InfoText { get; private set; }
 
 
@@ -35,7 +35,7 @@ namespace PayByPhoneAPI
             {
                 // process the data to get the security settings                                
                 var node = tc.SelectSingleNode("//userlog");
-                InfoHTML = node.OuterHtml;
+                InfoHtml = node.OuterHtml;
                 InfoText = node.InnerText;
 
             }

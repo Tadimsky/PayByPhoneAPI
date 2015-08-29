@@ -11,22 +11,22 @@ namespace PayByPhoneAPI
     namespace Items {
         class Vehicle
         {
-            private string myLicensePlate;
-            private VehicleType myType;
-            private string myVehicleID;
-            private string myHiddenLicensePlate;
+            private string _myLicensePlate;
+            private VehicleType _myType;
+            private string _myVehicleId;
+            private string _myHiddenLicensePlate;
 
             public VehicleWebData WebData { get; set; }
-            private bool isFromWebsite;
+            private bool _isFromWebsite;
 
             public Vehicle()
             {
-                myLicensePlate = "";
-                myHiddenLicensePlate = "";
-                myType = VehicleType.Car;
-                myVehicleID = "0";
+                _myLicensePlate = "";
+                _myHiddenLicensePlate = "";
+                _myType = VehicleType.Car;
+                _myVehicleId = "0";
                 WebData = new VehicleWebData();
-                isFromWebsite = false;
+                _isFromWebsite = false;
             }
 
             public static Vehicle Parse(HtmlAgilityPack.HtmlNode htmlData)
@@ -49,16 +49,16 @@ namespace PayByPhoneAPI
                 string vehicleTypeVal = htmlData.SelectSingleNode(".//select/option[@selected='selected']/@value")?.GetAttributeValue("value", "");                
 
                 var hiddenData = htmlData.SelectNodes(".//input[@type='hidden']");
-                var hiddenID = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("VehicleUid") == true)?.First()?.GetAttributeValue("value", "");
+                var hiddenId = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("VehicleUid") == true)?.First()?.GetAttributeValue("value", "");
                 var hiddenLicPlate = hiddenData.Where(input => input.Attributes["name"]?.Value.Contains("LicensePlateHiddenField") == true)?.First()?.GetAttributeValue("value", "");
 
-                myType = (VehicleType)int.Parse(vehicleTypeVal);
-                myLicensePlate = licensePlate;
-                myHiddenLicensePlate = hiddenLicPlate;
-                myVehicleID = hiddenID;
+                _myType = (VehicleType)int.Parse(vehicleTypeVal);
+                _myLicensePlate = licensePlate;
+                _myHiddenLicensePlate = hiddenLicPlate;
+                _myVehicleId = hiddenId;
 
                 WebData = new VehicleWebData(htmlData);
-                isFromWebsite = true;
+                _isFromWebsite = true;
             }
 
 
@@ -66,25 +66,25 @@ namespace PayByPhoneAPI
             {
                 get
                 {
-                    return myLicensePlate;
+                    return _myLicensePlate;
                 }
 
                 set
                 {
-                    myLicensePlate = value;
+                    _myLicensePlate = value;
                 }
             }
 
-            public string VehicleID
+            public string VehicleId
             {
                 get
                 {
-                    return myVehicleID;
+                    return _myVehicleId;
                 }
 
                 set
                 {
-                    myVehicleID = value;
+                    _myVehicleId = value;
                 }
             }
 
@@ -92,12 +92,12 @@ namespace PayByPhoneAPI
             {
                 get
                 {
-                    return myType;
+                    return _myType;
                 }
 
                 set
                 {
-                    myType = value;
+                    _myType = value;
                 }
             }
 
@@ -105,12 +105,12 @@ namespace PayByPhoneAPI
             {
                 get
                 {
-                    string vehicleType = isFromWebsite ? String.Format("{0}", (int)myType) : "1";
+                    string vehicleType = _isFromWebsite ? String.Format("{0}", (int)_myType) : "1";
                     NameValueCollection nvc = new NameValueCollection();
-                    nvc.Add(WebData.LicensePlateTextBox, myLicensePlate);
-                    nvc.Add(WebData.VehicleUIDHiddenField, myVehicleID);
+                    nvc.Add(WebData.LicensePlateTextBox, _myLicensePlate);
+                    nvc.Add(WebData.VehicleUidHiddenField, _myVehicleId);
                     // if this is a new vehicle / not loaded from website, do not know the hidden lic plate or hidden type
-                    nvc.Add(WebData.LicensePlateHiddenField, isFromWebsite ? myHiddenLicensePlate : "");
+                    nvc.Add(WebData.LicensePlateHiddenField, _isFromWebsite ? _myHiddenLicensePlate : "");
                     nvc.Add(WebData.VehicleTypeHiddenField, vehicleType);
 
                     nvc.Add(WebData.VehicleTypeDropDown, vehicleType);
@@ -132,7 +132,7 @@ namespace PayByPhoneAPI
         class VehicleWebData
         {
             public string LicensePlateTextBox { get; set; }
-            public string VehicleUIDHiddenField { get; set; }
+            public string VehicleUidHiddenField { get; set; }
             public string LicensePlateHiddenField { get; set; }
             public string VehicleTypeHiddenField { get; set; }
             public string VehicleTypeDropDown { get; set; }
@@ -156,7 +156,7 @@ namespace PayByPhoneAPI
                 VehicleWebData newData = new VehicleWebData();
                 newData.LicensePlateTextBox = matcher.Replace(previous.LicensePlateTextBox, incrementer);
                 newData.LicensePlateHiddenField = matcher.Replace(previous.LicensePlateHiddenField, incrementer);
-                newData.VehicleUIDHiddenField = matcher.Replace(previous.VehicleUIDHiddenField, incrementer);
+                newData.VehicleUidHiddenField = matcher.Replace(previous.VehicleUidHiddenField, incrementer);
                 newData.VehicleTypeHiddenField = matcher.Replace(previous.VehicleTypeHiddenField, incrementer);
                 newData.VehicleTypeDropDown= matcher.Replace(previous.VehicleTypeDropDown, incrementer);
 
@@ -170,7 +170,7 @@ namespace PayByPhoneAPI
 
                 LicensePlateTextBox = allInputs.Where(input => input.Attributes["name"]?.Value?.Contains("LicensePlateTextBox") == true).First()?.GetAttributeValue("name", "");
                 LicensePlateHiddenField = allInputs.Where(input => input.Attributes["name"]?.Value?.Contains("LicensePlateHiddenField") == true).First()?.GetAttributeValue("name", "");
-                VehicleUIDHiddenField = allInputs.Where(input => input.Attributes["name"]?.Value?.Contains("VehicleUidHiddenField") == true).First()?.GetAttributeValue("name", "");
+                VehicleUidHiddenField = allInputs.Where(input => input.Attributes["name"]?.Value?.Contains("VehicleUidHiddenField") == true).First()?.GetAttributeValue("name", "");
                 VehicleTypeHiddenField = allInputs.Where(input => input.Attributes["name"]?.Value?.Contains("VehicleTypeUidHiddenField") == true).First()?.GetAttributeValue("name", "");
                 VehicleTypeDropDown = select?.GetAttributeValue("name", "");
             }

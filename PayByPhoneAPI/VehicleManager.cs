@@ -8,23 +8,23 @@ using System.Collections.Specialized;
 
 namespace PayByPhoneAPI
 {
-    class VehicleManager : APISection
+    class VehicleManager : ApiSection
     {
-        private int myMaximumVehicles = 4;
+        private int _myMaximumVehicles = 4;
         
         public List<Vehicle> Vehicles { get; set; }
 
-        private bool updatedList;
+        private bool _updatedList;
         
-        public VehicleManager(PayByPhoneAPI api) : base(api)
+        public VehicleManager(PayByPhoneApi api) : base(api)
         {            
             Vehicles = new List<Items.Vehicle>();
-            updatedList = false;
+            _updatedList = false;
         }
 
         private bool ShouldUpdate()
         {
-            return !updatedList;
+            return !_updatedList;
         }
 
         public async Task<bool> LoadVehicles()
@@ -32,14 +32,14 @@ namespace PayByPhoneAPI
             List<Items.Vehicle> loadedVehicles = new List<Items.Vehicle>();
             Vehicles.Clear();
 
-            var doc = await this.loadOptions(Sections.Button.Vehicles);
+            var doc = await this.LoadOptions(Sections.Button.Vehicles);
 
             var editVehiclesTable = doc.GetElementbyId(FormInputNames.VehicleDetails.VehicleTable);
             if (editVehiclesTable != null)
             {
                 var vehicleRows = editVehiclesTable.SelectNodes("tr");
                 // max cars we can deal with right now is vehicleRows - 1
-                this.myMaximumVehicles = vehicleRows.Count - 1;
+                this._myMaximumVehicles = vehicleRows.Count - 1;
                 foreach (var vehicle in vehicleRows)
                 {
                     Items.Vehicle newVehicle = Items.Vehicle.Parse(vehicle);
@@ -74,7 +74,7 @@ namespace PayByPhoneAPI
                 await this.LoadVehicles();
             }
 
-            if (Vehicles.Count >= myMaximumVehicles)
+            if (Vehicles.Count >= _myMaximumVehicles)
             {
                 // cannot create more cars, can we?
                 return false;
@@ -119,7 +119,7 @@ namespace PayByPhoneAPI
             var lastVehicle = Vehicles.Last();
             
             // fill up missing items with blank data
-            for (int blankVehicles = Vehicles.Count; blankVehicles < myMaximumVehicles; blankVehicles++)
+            for (int blankVehicles = Vehicles.Count; blankVehicles < _myMaximumVehicles; blankVehicles++)
             {
                 Vehicle v = new Vehicle();
                 v.WebData = VehicleWebData.NextIncrement(lastVehicle.WebData);
@@ -127,13 +127,13 @@ namespace PayByPhoneAPI
                 allFields.Add(v.WebFormData);
             }
 
-            var doc = await this.loadOptions(Sections.Button.Vehicles);
+            var doc = await this.LoadOptions(Sections.Button.Vehicles);
 
             // upload our current info
             // hopefully no changes in here
-            doc = await myAPI.CallAPI("EditVehicles.aspx", true, allFields);
+            doc = await MyApi.CallApi("EditVehicles.aspx", true, allFields);
 
-            PayByPhoneAPI.VerifyMessage(doc);
+            PayByPhoneApi.VerifyMessage(doc);
 
             return true;
         }

@@ -14,7 +14,7 @@ namespace PayByPhoneAPI
 {
     class Program
     {
-        PayByPhoneAPI api;
+        PayByPhoneApi _api;
 
         static void Main(string[] args)
         {
@@ -60,7 +60,7 @@ namespace PayByPhoneAPI
                         p.EditSecuritySettings();
                         break;
                     case "Get TC":
-                        p.GetTC();
+                        p.GetTc();
                         break;
                     case "Test":
                         p.Test();
@@ -81,8 +81,8 @@ namespace PayByPhoneAPI
         private async void Login()
         {   
             bool val;
-            api = new PayByPhoneAPI();
-            await api.Login("7202564696", "2343");
+            _api = new PayByPhoneApi();
+            await _api.Login("7202564696", "2343");
             return;
             do
             {
@@ -93,7 +93,7 @@ namespace PayByPhoneAPI
                 Console.Write("\tPassword: ");
                 var password = Console.ReadLine();
 
-                val = await api.Login(username, password);
+                val = await _api.Login(username, password);
                 if (!val)
                 {
                     Console.WriteLine("Error Logging In");
@@ -105,7 +105,7 @@ namespace PayByPhoneAPI
 
         private async void GetVehicles()
         {
-            foreach (var v in await api.GetVehicles())
+            foreach (var v in await _api.GetVehicles())
             {
                 Console.WriteLine("\t{0}\t{1}", v.LicensePlate, v.Type.ToString());
             }
@@ -113,7 +113,7 @@ namespace PayByPhoneAPI
 
         private void Logout()
         {
-            api.Logout();
+            _api.Logout();
         }
 
         private async void AddVehicle()
@@ -121,12 +121,12 @@ namespace PayByPhoneAPI
             Items.Vehicle v = new Items.Vehicle();
             v.LicensePlate = Guid.NewGuid().ToString().Substring(0, 5);
             Console.WriteLine("\tAdding New Vehicle: {0}", v.LicensePlate);
-            await api.CreateVehicle(v);            
+            await _api.CreateVehicle(v);            
         }
 
         private async void EditVehicle()
         {
-            var v = await api.GetVehicles();
+            var v = await _api.GetVehicles();
             var vehicle = v.First();
 
             var old = vehicle.LicensePlate;
@@ -134,18 +134,18 @@ namespace PayByPhoneAPI
             vehicle.LicensePlate = Guid.NewGuid().ToString().Substring(0, 5);
 
             Console.WriteLine("\tEditing Vehicle: {0} -> {1}", old, vehicle.LicensePlate);
-            await api.UpdateVehicle(vehicle);
+            await _api.UpdateVehicle(vehicle);
         }
 
         private async void DeleteVehicle()
         {
-            var v = await api.GetVehicles();
+            var v = await _api.GetVehicles();
             var vehicle = v.First();
             if (vehicle != null)
             {
                 Console.WriteLine("\tDeleting Vehicle: {0}", vehicle.LicensePlate);
 
-                await api.DeleteVehicle(vehicle);
+                await _api.DeleteVehicle(vehicle);
             }
             else
             {
@@ -161,12 +161,12 @@ namespace PayByPhoneAPI
             cc.Name = "Ja Schmidt";
             cc.Number = "52210083633010048";
 
-            await api.UploadCard(cc);
+            await _api.UploadCard(cc);
         }
 
         private async void GetEmail()
         {
-            Console.WriteLine((await api.GetEmailSetting()).ToString());
+            Console.WriteLine((await _api.GetEmailSetting()).ToString());
         }
 
         private async void EditEmail()
@@ -176,12 +176,12 @@ namespace PayByPhoneAPI
             email.EmailReceipts = true;
             email.TextReminders = true;
 
-            await api.UpdateEmailSetting(email);
+            await _api.UpdateEmailSetting(email);
         }
 
         private async void GetSecuritySettings()
         {
-            Console.WriteLine((await api.GetSecuritySetting()).ToString());
+            Console.WriteLine((await _api.GetSecuritySetting()).ToString());
         }
 
         private async void EditSecuritySettings()
@@ -190,22 +190,22 @@ namespace PayByPhoneAPI
             security.RememberPin = false;
             security.SkipVoicePin = true;
             security.ChangePin("2343", "2343", "2343");
-            await api.UpdateSecuritySetting(security);
+            await _api.UpdateSecuritySetting(security);
         }
 
-        private async void GetTC()
+        private async void GetTc()
         {
-            Console.WriteLine((await api.GetTermsAndConditions()).InfoHTML);
+            Console.WriteLine((await _api.GetTermsAndConditions()).InfoHtml);
         }
 
         private void Test()
         {
-            api.Test();
+            _api.Test();
         }
 
         private async void GetRecentLocations()
         {
-            foreach (var recentLocation in await api.GetRecentLocations())
+            foreach (var recentLocation in await _api.GetRecentLocations())
             {
                 Console.WriteLine($"\t{recentLocation}");
             }
@@ -213,16 +213,16 @@ namespace PayByPhoneAPI
 
         private async void SelectRecentLocation()
         {
-            var location = await api.GetRecentLocations();
-            var res = await api.SelectLocation(location.First());
+            var location = await _api.GetRecentLocations();
+            var res = await _api.SelectLocation(location.First());
         }
 
         private async void SelectLocation()
         {
             var location = new SearchLocation();
-            location.LocationID = "123";
+            location.LocationId = "123";
 
-            var res = await api.SelectLocation(location);
+            var res = await _api.SelectLocation(location);
         }
     }
 }

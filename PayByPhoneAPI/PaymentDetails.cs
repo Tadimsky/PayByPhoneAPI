@@ -8,34 +8,34 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class PaymentDetails : APISection
+    class PaymentDetails : ApiSection
     {
-       public PaymentDetails(PayByPhoneAPI api) : base(api)
+       public PaymentDetails(PayByPhoneApi api) : base(api)
         {
         }
 
-        private async Task<HtmlAgilityPack.HtmlDocument> loadCardPage()
+        private async Task<HtmlAgilityPack.HtmlDocument> LoadCardPage()
         {
-            return await loadOptions(Sections.Button.PaymentDetails);
+            return await LoadOptions(Sections.Button.PaymentDetails);
         }
 
         public async Task<bool> SaveCard(CreditCard card)
         {
-            return await this.uploadCard(card);
+            return await this.UploadCard(card);
         }
 
-        private async Task<bool> uploadCard(CreditCard card)
+        private async Task<bool> UploadCard(CreditCard card)
         {
-            await this.loadCardPage();
+            await this.LoadCardPage();
 
             // post the data to the info
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add(card.WebFormData);
             nvc.Add(FormInputNames.PaymentDetails.UpdateButton, FormInputNames.PaymentDetails.UpdateButtonValue);
 
-            var doc = await myAPI.CallAPI("PaymentDetails.aspx", true, nvc);
+            var doc = await MyApi.CallApi("PaymentDetails.aspx", true, nvc);
             try {
-                PayByPhoneAPI.VerifyMessage(doc);
+                PayByPhoneApi.VerifyMessage(doc);
             } 
             catch (UnexpectedResponseException ex)
             {

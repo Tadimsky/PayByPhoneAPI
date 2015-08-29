@@ -7,22 +7,22 @@ namespace PayByPhoneAPI
 {
     class SearchLocation : Location
     {
-        public string LocationID { get; set; }
+        public string LocationId { get; set; }
 
         public SearchLocation()
         {
-            LocationID = "";
+            LocationId = "";
         }
 
         public SearchLocation(string location)
         {
-            LocationID = location;
+            LocationId = location;
         }
 
         public virtual NameValueCollection GetWebFormData()
         {
             NameValueCollection nvc = new NameValueCollection();
-            nvc.Add(FormInputNames.LocationSearch.LocationSearchBox, LocationID);
+            nvc.Add(FormInputNames.LocationSearch.LocationSearchBox, LocationId);
             return nvc;
         }
     }
@@ -31,7 +31,7 @@ namespace PayByPhoneAPI
     {
         public RecentLocation(HtmlNode node)
         {
-            LocationID = node.GetAttributeValue("value", "");
+            LocationId = node.GetAttributeValue("value", "");
             if (node.NextSibling != null)
             {
                 Name = node.NextSibling.InnerText;
@@ -41,7 +41,7 @@ namespace PayByPhoneAPI
         public override NameValueCollection GetWebFormData()
         {
             NameValueCollection nvc = new NameValueCollection();
-            nvc.Add(FormInputNames.LocationSearch.PreviousLocationSearch, LocationID);
+            nvc.Add(FormInputNames.LocationSearch.PreviousLocationSearch, LocationId);
             return nvc;
         }
 

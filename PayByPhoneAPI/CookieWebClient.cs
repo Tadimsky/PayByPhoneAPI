@@ -9,13 +9,13 @@ namespace PayByPhoneAPI
 {
     class CookieWebClient : WebClient
     {
-        private readonly CookieContainer mCookieContainer = new CookieContainer();
+        private readonly CookieContainer _mCookieContainer = new CookieContainer();
 
         public CookieContainer CookieContainer
         {
             get
             {
-                return mCookieContainer;
+                return _mCookieContainer;
             }
         }
 
@@ -26,7 +26,7 @@ namespace PayByPhoneAPI
 
             if (webRequest != null)
             {
-                webRequest.CookieContainer = mCookieContainer;
+                webRequest.CookieContainer = _mCookieContainer;
             }
             return request;
         }
@@ -51,7 +51,7 @@ namespace PayByPhoneAPI
             if (response != null)
             {
                 CookieCollection cookies = response.Cookies;
-                mCookieContainer.Add(cookies);
+                _mCookieContainer.Add(cookies);
             }
         }
     }

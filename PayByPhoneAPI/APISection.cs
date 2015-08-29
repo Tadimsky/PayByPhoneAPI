@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class APISection
+    class ApiSection
     {
-        protected PayByPhoneAPI myAPI;
-        public APISection(PayByPhoneAPI api)
+        protected PayByPhoneApi MyApi;
+        public ApiSection(PayByPhoneApi api)
         {
-            myAPI = api;
+            MyApi = api;
         }
 
-        protected async Task<HtmlAgilityPack.HtmlDocument> loadOptions(string optionTarget)
+        protected async Task<HtmlAgilityPack.HtmlDocument> LoadOptions(string optionTarget)
         {
             // load the options page
-            await myAPI.CallAPI("OtherOptions.aspx", false);
+            await MyApi.CallApi("OtherOptions.aspx", false);
 
             // send request to get to card page
             NameValueCollection info = new NameValueCollection();
             info.Add("__EVENTTARGET", optionTarget);
-            var doc = await myAPI.CallAPI("OtherOptions.aspx", true, info);
+            var doc = await MyApi.CallApi("OtherOptions.aspx", true, info);
 
             // return the card info
             return doc;

@@ -8,26 +8,26 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class EmailSettings : APISection
+    class EmailSettings : ApiSection
     {
-       public EmailSettings(PayByPhoneAPI api) : base(api)
+       public EmailSettings(PayByPhoneApi api) : base(api)
         {
         }
         
 
         public async Task<bool> SaveEmail(EmailSetting email)
         {
-            await this.loadOptions(Sections.Button.EmailSettings);
+            await this.LoadOptions(Sections.Button.EmailSettings);
 
             // post the data to the info
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add(email.WebFormData);
             nvc.Add(FormInputNames.EmailSettings.UpdateButton, FormInputNames.EmailSettings.UpdateButtonValue);
 
-            var doc = await myAPI.CallAPI("TextEmailSettings.aspx", true, nvc);
+            var doc = await MyApi.CallApi("TextEmailSettings.aspx", true, nvc);
             try
             {
-                PayByPhoneAPI.VerifyMessage(doc);
+                PayByPhoneApi.VerifyMessage(doc);
             }
             catch (UnexpectedResponseException ex)
             {
@@ -39,7 +39,7 @@ namespace PayByPhoneAPI
 
         public async Task<EmailSetting> GetEmailSetting()
         {
-            var doc = await this.loadOptions(Sections.Button.EmailSettings);
+            var doc = await this.LoadOptions(Sections.Button.EmailSettings);
             
             // process this doc
             return new EmailSetting(doc.DocumentNode);

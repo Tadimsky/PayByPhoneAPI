@@ -8,26 +8,26 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class SecuritySettings : APISection
+    class SecuritySettings : ApiSection
     {
-       public SecuritySettings(PayByPhoneAPI api) : base(api)
+       public SecuritySettings(PayByPhoneApi api) : base(api)
         {
         }
         
 
         public async Task<bool> SaveSettings(SecuritySetting security)
         {
-            await this.loadOptions(Sections.Button.SecuritySettings);
+            await this.LoadOptions(Sections.Button.SecuritySettings);
 
             // post the data to the info
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add(security.WebFormData);
             nvc.Add(FormInputNames.SecuritySettings.UpdateButton, FormInputNames.SecuritySettings.UpdateButtonValue);
 
-            var doc = await myAPI.CallAPI("SecuritySettings.aspx", true, nvc);
+            var doc = await MyApi.CallApi("SecuritySettings.aspx", true, nvc);
             try
             {
-                PayByPhoneAPI.VerifyMessage(doc);
+                PayByPhoneApi.VerifyMessage(doc);
             }
             catch (UnexpectedResponseException ex)
             {
@@ -39,7 +39,7 @@ namespace PayByPhoneAPI
 
         public async Task<SecuritySetting> GetSecuritySetting()
         {
-            var doc = await this.loadOptions(Sections.Button.SecuritySettings);
+            var doc = await this.LoadOptions(Sections.Button.SecuritySettings);
             
             // process this doc
             return new SecuritySetting(doc.DocumentNode);
@@ -54,12 +54,12 @@ namespace PayByPhoneAPI
             public bool RememberPin { get; set; }
             public bool SkipVoicePin{ get; set; }
 
-            private string oldPin;
+            private string _oldPin;
 
             public SecuritySetting()
             {
                 Pin = "";
-                oldPin = "";
+                _oldPin = "";
                 RememberPin = false;
                 SkipVoicePin = false;
             }
@@ -68,7 +68,7 @@ namespace PayByPhoneAPI
             {                
                 if (newPin.Equals(confirmPin))
                 {
-                    oldPin = currentPin;
+                    _oldPin = currentPin;
                     Pin = newPin;
                     return true;
                 }
@@ -90,7 +90,7 @@ namespace PayByPhoneAPI
                 get
                 {
                     NameValueCollection nvc = new NameValueCollection();
-                    nvc.Add(FormInputNames.SecuritySettings.CurrentPin, oldPin);
+                    nvc.Add(FormInputNames.SecuritySettings.CurrentPin, _oldPin);
                     nvc.Add(FormInputNames.SecuritySettings.NewPin, Pin);
                     nvc.Add(FormInputNames.SecuritySettings.ConfirmPin, Pin);
 

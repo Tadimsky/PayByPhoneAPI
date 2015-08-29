@@ -10,52 +10,52 @@ using System.Threading.Tasks;
 
 namespace PayByPhoneAPI
 {
-    class PayByPhoneAPI
+    class PayByPhoneApi
     {
-        private string myViewState;
-        private string myEventValidation;
-        private string myViewStateGenerator;
+        private string _myViewState;
+        private string _myEventValidation;
+        private string _myViewStateGenerator;
 
-        private WebClient myWebClient;
+        private WebClient _myWebClient;
 
-        private VehicleManager myVehicleManager;
-        private PaymentDetails myPaymentDetails;
-        private EmailSettings myEmailSettings;
-        private SecuritySettings mySecuritySettings;
-        private TermsConditions myTermsConditions;
-        private LocationManager myLocationManager;
+        private VehicleManager _myVehicleManager;
+        private PaymentDetails _myPaymentDetails;
+        private EmailSettings _myEmailSettings;
+        private SecuritySettings _mySecuritySettings;
+        private TermsConditions _myTermsConditions;
+        private LocationManager _myLocationManager;
         
 
-        public PayByPhoneAPI()
+        public PayByPhoneApi()
         {
-            myWebClient = new CookieWebClient();
-            myWebClient.BaseAddress = "https://m.paybyphone.com";
-            myWebClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-            myWebClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
-            myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
+            _myWebClient = new CookieWebClient();
+            _myWebClient.BaseAddress = "https://m.paybyphone.com";
+            _myWebClient.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+            _myWebClient.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+            _myWebClient.Headers["Origin"] = "https://m.paybyphone.com";
 
-            myVehicleManager = new VehicleManager(this);
-            myPaymentDetails = new PaymentDetails(this);
-            myEmailSettings = new EmailSettings(this);
-            mySecuritySettings = new SecuritySettings(this);
-            myTermsConditions = new TermsConditions(this);
-            myLocationManager = new LocationManager(this);
+            _myVehicleManager = new VehicleManager(this);
+            _myPaymentDetails = new PaymentDetails(this);
+            _myEmailSettings = new EmailSettings(this);
+            _mySecuritySettings = new SecuritySettings(this);
+            _myTermsConditions = new TermsConditions(this);
+            _myLocationManager = new LocationManager(this);
         }
 
 
-        public async Task<bool> Login(string Username, string Password)
+        public async Task<bool> Login(string username, string password)
         {
             // fetch the view state and whatnot first
-            await CallAPI("Default.aspx", false);
+            await CallApi("Default.aspx", false);
 
             NameValueCollection info = new NameValueCollection();
             info.Add("ctl00$ContentPlaceHolder1$CallingCodeDropDownList", "-1");
-            info.Add("ctl00$ContentPlaceHolder1$AccountTextBox", Username);
-            info.Add("ctl00$ContentPlaceHolder1$PinOrLast4DigitCcTextBox", Password);
+            info.Add("ctl00$ContentPlaceHolder1$AccountTextBox", username);
+            info.Add("ctl00$ContentPlaceHolder1$PinOrLast4DigitCcTextBox", password);
             info.Add("ctl00$ContentPlaceHolder1$LoginButton", "sign+in");
             info.Add("ctl00$ContentPlaceHolder1$RememberPinCheckBox", "on");
 
-            var doc = await CallAPI("Default.aspx", true, info);
+            var doc = await CallApi("Default.aspx", true, info);
 
             var form = doc.GetElementbyId("aspnetForm");            
             if (form != null)
@@ -87,8 +87,8 @@ namespace PayByPhoneAPI
         public bool Logout()
         {
             NameValueCollection values = new NameValueCollection();
-            values.Add("__EVENTTARGET", "ctl00$ContentPlaceHolder1$LogOutButton");
-            var doc = CallAPI("OtherOptions.aspx", true, values);
+            values.Add(Constants.Api.EventTarget, "ctl00$ContentPlaceHolder1$LogOutButton");
+            var doc = CallApi("OtherOptions.aspx", true, values);
 
             // can you fail a logout?
             // TODO: clear cookies for fun
@@ -98,67 +98,67 @@ namespace PayByPhoneAPI
 
         public async Task<List<Items.Vehicle>> GetVehicles()
         {
-            await myVehicleManager.LoadVehicles();
-            return myVehicleManager.Vehicles;
+            await _myVehicleManager.LoadVehicles();
+            return _myVehicleManager.Vehicles;
         }        
 
         public async Task<bool> CreateVehicle(Items.Vehicle vehicle)
         {
-            return await myVehicleManager.CreateVehicle(vehicle);
+            return await _myVehicleManager.CreateVehicle(vehicle);
         }
 
         public async Task<bool> UpdateVehicle(Items.Vehicle vehicle)
         {
-            return await myVehicleManager.UpdateVehicle(vehicle);
+            return await _myVehicleManager.UpdateVehicle(vehicle);
         }
 
         public async Task<bool> DeleteVehicle(Items.Vehicle vehicle)
         {
-            return await myVehicleManager.DeleteVehicle(vehicle);
+            return await _myVehicleManager.DeleteVehicle(vehicle);
         }
 
         public async Task<bool> UploadCard(Items.CreditCard creditcard)
         {
-            return await myPaymentDetails.SaveCard(creditcard);
+            return await _myPaymentDetails.SaveCard(creditcard);
         }
 
         public async Task<Items.EmailSetting> GetEmailSetting()
         {
-            return await myEmailSettings.GetEmailSetting();
+            return await _myEmailSettings.GetEmailSetting();
         }
 
         public async Task<bool> UpdateEmailSetting(Items.EmailSetting email)
         {
-            return await myEmailSettings.SaveEmail(email);
+            return await _myEmailSettings.SaveEmail(email);
         }
 
         public async Task<Items.SecuritySetting> GetSecuritySetting()
         {
-            return await mySecuritySettings.GetSecuritySetting();
+            return await _mySecuritySettings.GetSecuritySetting();
         }
 
         public async Task<bool> UpdateSecuritySetting(Items.SecuritySetting security)
         {
-            return await mySecuritySettings.SaveSettings(security);
+            return await _mySecuritySettings.SaveSettings(security);
         }
 
         public async Task<Items.TermsConditions> GetTermsAndConditions()
         {
-            return await myTermsConditions.GetTermsConditions();
+            return await _myTermsConditions.GetTermsConditions();
         }
 
         public void Test()
         {
-            myLocationManager.Test();
+            _myLocationManager.Test();
         }
 
         public async Task<List<RecentLocation>> GetRecentLocations()
         {
-            await myLocationManager.LoadLocations();
-            return myLocationManager.RecentLocations;
+            await _myLocationManager.LoadLocations();
+            return _myLocationManager.RecentLocations;
         }
 
-        public async Task<HtmlDocument> CallAPI(string url, bool post = true, NameValueCollection content = null)
+        public async Task<HtmlDocument> CallApi(string url, bool post = true, NameValueCollection content = null)
         {   
             string response;
 
@@ -168,33 +168,33 @@ namespace PayByPhoneAPI
                 {
                     content = new NameValueCollection();
                 }
-                if (content.Get("__EVENTTARGET") == null)
+                if (content.Get(Constants.Api.EventTarget) == null)
                 {
                     content.Add("__EVENTARGUMENT", "");
                 }
                 
-                content.Add("__VIEWSTATE", myViewState);
-                content.Add("__VIEWSTATEGENERATOR", myViewStateGenerator);
-                content.Add("__EVENTVALIDATION", myEventValidation);
+                content.Add("__VIEWSTATE", _myViewState);
+                content.Add("__VIEWSTATEGENERATOR", _myViewStateGenerator);
+                content.Add("__EVENTVALIDATION", _myEventValidation);
                 
-                var result = await myWebClient.UploadValuesTaskAsync(url, "POST", content);
+                var result = await _myWebClient.UploadValuesTaskAsync(url, "POST", content);
                 response = Encoding.UTF8.GetString(result);
             }
             else
             {
-                response = await myWebClient.DownloadStringTaskAsync(url);
+                response = await _myWebClient.DownloadStringTaskAsync(url);
             }
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(response);
-            processState(doc);
+            ProcessState(doc);
 
             return doc;
         }
 
         public async Task<LocationResult> SelectLocation(SearchLocation location)
         {
-            return await myLocationManager.SelectLocation(location);
+            return await _myLocationManager.SelectLocation(location);
         }
 
         public static bool VerifyMessage(HtmlDocument document, string text = "Details updated.")
@@ -212,7 +212,7 @@ namespace PayByPhoneAPI
             throw new UnexpectedResponseException(text, receivedMessage);
         }
 
-        private void processState(HtmlDocument html)
+        private void ProcessState(HtmlDocument html)
         {
             var viewState = html.GetElementbyId("__VIEWSTATE");
             int countChanges = 0;
@@ -220,14 +220,14 @@ namespace PayByPhoneAPI
             if (viewState != null)
             {
                 var value = viewState.GetAttributeValue("value", "");
-                myViewState = value;
+                _myViewState = value;
                 countChanges++;
             }
             var eventValidation = html.GetElementbyId("__EVENTVALIDATION");
             if (eventValidation != null)
             {
                 var value = eventValidation.GetAttributeValue("value", "");
-                myEventValidation = value;
+                _myEventValidation = value;
                 countChanges++;
             }
 
@@ -235,7 +235,7 @@ namespace PayByPhoneAPI
             if (viewStateGenerator != null)
             {
                 var value = viewStateGenerator.GetAttributeValue("value", "");
-                myViewStateGenerator = value;
+                _myViewStateGenerator = value;
                 countChanges++;
             }
             
@@ -261,6 +261,14 @@ namespace PayByPhoneAPI
         public override string ToString()
         {
             return String.Format("Received Response: {0}\nExpected: {1}", ReceivedMessage, ExpectedMessage);
+        }
+    }
+
+    namespace Constants
+    {
+        public static class Api
+        {
+            public const string EventTarget = "__EVENTTARGET";
         }
     }
 }
