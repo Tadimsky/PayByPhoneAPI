@@ -223,6 +223,15 @@ namespace PayByPhoneAPI
             location.LocationId = "123";
 
             var res = await _api.SelectLocation(location);
+            if (res is SingleLocationResult)
+            {
+                // selected location
+            }
+            else
+            {
+                MultipleLocationResult mlr = (MultipleLocationResult) res;
+                res = await mlr.RefineSelection(mlr.Locations.First());
+            }
         }
     }
 }

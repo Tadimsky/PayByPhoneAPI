@@ -49,6 +49,13 @@ namespace PayByPhoneAPI
 
             var doc = await MyApi.CallApi("ChooseLocation.aspx", true, data);
             // process this result and return the correct info
+            var result = ParseLocationResult(doc, MyApi);
+
+            return result;
+        }
+
+        public static LocationResult ParseLocationResult(HtmlDocument doc, PayByPhoneApi api)
+        {
             var form = doc.DocumentNode.SelectSingleNode("//form");
             var formAction = form?.GetAttributeValue("action", "");
 
@@ -59,7 +66,7 @@ namespace PayByPhoneAPI
                 if (formAction.Contains("ChooseLocation"))
                 {
                     // this is a multiple response
-                    result = new MultipleLocationResult(MyApi);
+                    result = new MultipleLocationResult(api);
                     var mlResult = result as MultipleLocationResult;
                     mlResult.Locations = DifferentiateResultLocation.ParseLocations(doc.DocumentNode);
                 }
@@ -71,7 +78,6 @@ namespace PayByPhoneAPI
                     slResult.Location = new ResultLocation(doc.DocumentNode);
                 }
             }
-
             return result;
         }
 

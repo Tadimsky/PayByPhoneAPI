@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Channels;
@@ -61,7 +62,10 @@ namespace PayByPhoneAPI
             href = WebUtility.HtmlDecode(href);
             var regex = new Regex(@"\((.+)\',\'(\d+)");
             var matches = regex.Match(href);
-            Index = int.Parse(matches.Groups[2].Value);
+            if (matches.Groups.Count == 3)
+            {
+                Index = int.Parse(matches.Groups[2].Value);
+            }
         }
 
         /// <summary>
@@ -103,14 +107,21 @@ namespace PayByPhoneAPI
             _api = api;
         }
 
-        public LocationResult RefineSelection(DifferentiateResultLocation location)
+        public async Task<LocationResult> RefineSelection(DifferentiateResultLocation location)
         {
-            // update with the new location 
-            // Constants.ChooseLocation.OverlappedLocationTarget
+            NameValueCollection nvc = new NameValueCollection
+            {
+                [Constants.Api.EventTarget] = Constants.ChooseLocation.OverlappedLocationTarget,
+                [Constants.Api.EventArgument] =location.Index.ToString()
 
-            // return the result - should be a singlelocation
-            // error? shitt
-            return null;
+            };
+            var doc = await _api.CallApi("ChooseLocation.aspx", true, nvc);
+            var result = LocationManager.ParseLocationResult(doc, _api);
+            if (result is MultipleLocationResult)
+            {
+                throw new Exception("Got a multiple location result instead of a single location result.");
+            }
+            return result;
         }
 
         public List<DifferentiateResultLocation> Locations { get; set; }
